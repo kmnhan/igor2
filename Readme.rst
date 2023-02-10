@@ -17,7 +17,7 @@ You can install igor2 via pip::
 
     pip install igor2
 
-The commands `igorbinarywave` and `igorpackedexperiment` are currently
+The commands ``igorbinarywave`` and ``igorpackedexperiment`` are currently
 not properly implemented (see https://github.com/AFM-analysis/igor2/issues/6),
 but it should be straight-forward to fix this.
 
@@ -38,23 +38,24 @@ with::
     import igor2 as igor
 
 
-Usage
------
-
 See the docstrings and unit tests for examples using the Python API.
-The package also installs to scripts, ``igorbinarywave.py`` and
-``igorpackedexperiment.py`` which can be used to dump files to stdout.
+
+CLI
+---
+The package also installs to scripts, ``igorbinarywave`` and
+``igorpackedexperiment`` which can be used to dump files to stdout.
 For details on their usage, use the ``--help`` option.  For example::
 
-  $ igorbinarywave.py --help
+    igorbinarywave --help
 
 
 Testing
 -------
 
-Run internal unit tests with::
+Run internal unit tests with pytest::
 
-    $ nosetests --with-doctest --doctest-tests igor test
+    pip install -r tests/requirements.txt
+    pytest tests
 
 The data in the ``test/data`` directory is in the Git repository, but
 it is not bundled with the source code.  If you want the test data,
