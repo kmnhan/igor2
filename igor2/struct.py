@@ -201,11 +201,17 @@ class Field (object):
                     for arg in self.pack_item(item):
                         yield arg
                 if items < self.item_count:
-                    if f.default is None:
-                        raise ValueError(
-                            'no default for {}.{}'.format(self, f))
-                    for i in range(self.item_count - items):
-                        yield f.default
+                    raise NotImplementedError(
+                        "You have reached a bad state! Please copy the "
+                        "code and data you used to get here and paste it at "
+                        "https://github.com/AFM-analysis/igor2/issues/5")
+                    # https://github.com/AFM-analysis/igor2/issues/5
+                    # Original code from W. Trevor King:
+                    # if f.default is None:
+                    #     raise ValueError(
+                    #         'no default for {}.{}'.format(self, f))
+                    # for i in range(self.item_count - items):
+                    #     yield f.default
             else:
                 for index in self.indexes():
                     try:
