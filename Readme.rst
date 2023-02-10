@@ -53,7 +53,7 @@ Licence
 -------
 
 This project is distributed under the `GNU Lesser General Public
-License Version 3`_ or greater, see the ``COPYING`` file distributed
+License Version 3`_ or greater, see the ``LICENSE`` file distributed
 with the project for details.
 
 
