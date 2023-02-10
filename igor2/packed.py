@@ -1,4 +1,4 @@
-"""Read IGOR Packed Experiment files files into records."""
+"""Read IGOR Packed Experiment files into records."""
 import logging
 
 from .struct import Structure as _Structure
@@ -32,7 +32,8 @@ PackedFileRecordHeader = _Structure(
         _Field('h', 'version',
                help='Version information depends on the type of record.'),
         _Field('l', 'numDataBytes',
-               help='Number of data bytes in the record following this record header.'),
+               help='Number of data bytes in the record following this'
+                    'record header.'),
     ])
 
 # CR_STR = '\x15'  (\r)
@@ -98,7 +99,7 @@ def load(filename, strict=True, ignore_unknown=True):
 
     filesystem = _build_filesystem(records)
 
-    return (records, filesystem)
+    return records, filesystem
 
 
 def _build_filesystem(records):

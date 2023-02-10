@@ -16,7 +16,7 @@ from .base import Record
 logger = logging.getLogger(__name__)
 
 
-class ListedStaticStringField (_NullStaticStringField):
+class ListedStaticStringField(_NullStaticStringField):
     """Handle string conversions for multi-count dynamic parents.
 
     If a field belongs to a multi-count dynamic parent, the parent is
@@ -34,25 +34,7 @@ class ListedStaticStringField (_NullStaticStringField):
         parent_data[-1][self.name] = d
 
 
-class ListedStaticStringField (_NullStaticStringField):
-    """Handle string conversions for multi-count dynamic parents.
-
-    If a field belongs to a multi-count dynamic parent, the parent is
-    called multiple times to parse each count, and the field's
-    post-unpack hook gets called after the field is unpacked during
-    each iteration.  This requires alternative logic for getting and
-    setting the string data.  The actual string formatting code is not
-    affected.
-    """
-
-    def post_unpack(self, parents, data):
-        parent_structure = parents[-1]
-        parent_data = self._get_structure_data(parents, data, parent_structure)
-        d = self._normalize_string(parent_data[-1][self.name])
-        parent_data[-1][self.name] = d
-
-
-class ListedDynamicStrDataField (_DynamicStringField, ListedStaticStringField):
+class ListedDynamicStrDataField(_DynamicStringField, ListedStaticStringField):
     _size_field = 'strLen'
     _null_terminated = False
 
@@ -62,7 +44,7 @@ class ListedDynamicStrDataField (_DynamicStringField, ListedStaticStringField):
         return parent_data[-1][self._size_field]
 
 
-class DynamicVarDataField (_DynamicField):
+class DynamicVarDataField(_DynamicField):
     def __init__(self, *args, **kwargs):
         if 'array' not in kwargs:
             kwargs['array'] = True
@@ -85,27 +67,27 @@ class DynamicVarDataField (_DynamicField):
         raise NotImplementedError()
 
 
-class DynamicSysVarField (DynamicVarDataField):
+class DynamicSysVarField(DynamicVarDataField):
     def _normalize_item(self, index, value):
         name = 'K{}'.format(index)
-        return (name, value)
+        return name, value
 
 
-class DynamicUserVarField (DynamicVarDataField):
+class DynamicUserVarField(DynamicVarDataField):
     def _normalize_item(self, index, value):
         name = value['name']
         value = value['num']
-        return (name, value)
+        return name, value
 
 
-class DynamicUserStrField (DynamicVarDataField):
+class DynamicUserStrField(DynamicVarDataField):
     def _normalize_item(self, index, value):
         name = value['name']
         value = value['data']
-        return (name, value)
+        return name, value
 
 
-class DynamicVarNumField (_DynamicField):
+class DynamicVarNumField(_DynamicField):
     def post_unpack(self, parents, data):
         parent_structure = parents[-1]
         parent_data = self._get_structure_data(parents, data, parent_structure)
@@ -183,7 +165,8 @@ VarNumRec = _Structure(
     fields=[
         _Field('h', 'numType', help='Type from binarywave.TYPE_TABLE'),
         _Field('d', 'realPart', help='The real part of the number.'),
-        _Field('d', 'imagPart', help='The imag part if the number is complex.'),
+        _Field('d', 'imagPart', help='The imag part if the number is '
+                                     'complex.'),
         _Field('l', 'reserved', help='Reserved - set to zero.'),
     ])
 
@@ -203,7 +186,8 @@ UserNumVarRec = _DynamicStructure(
         DynamicVarNumField(
             VarNumRec,
             'num',
-            help='Type and value of the variable if it is numeric.  Not used for string.'),
+            help='Type and value of the variable if it is numeric. '
+                 'Not used for string.'),
     ])
 
 # From Variables.h
@@ -222,7 +206,8 @@ UserDependentVarRec = _DynamicStructure(
         _Field(
             VarNumRec,
             'num',
-            help='Type and value of the variable if it is numeric.  Not used for string.'),
+            help='Type and value of the variable if it is numeric. '
+                 'Not used for string.'),
         _Field(
             'h',
             'formulaLen',
@@ -230,7 +215,8 @@ UserDependentVarRec = _DynamicStructure(
         DynamicFormulaField(
             'c',
             'formula',
-            help='Start of the dependency formula. A C string including null terminator.'),
+            help='Start of the dependency formula. A C string including '
+                 'null terminator.'),
     ])
 
 
@@ -242,7 +228,7 @@ class DynamicVarHeaderField (_DynamicField):
         var_structure = parents[-1]
         var_data = self._get_structure_data(
             parents, data, var_structure)
-        var_header_structure = self.format
+        # var_header_structure = self.format
         data = var_data['var_header']
         sys_vars_field = var_structure.get_field('sysVars')
         sys_vars_field.count = data['numSysVars']

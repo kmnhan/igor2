@@ -663,7 +663,7 @@ class DynamicWaveField (_DynamicField):
         # c = _checksum(b, parents[-1].byte_order, 0, checksum_size)
         # if c != 0:
         #     raise ValueError(
-        #         ('This does not appear to be a valid Igor binary wave file.  '
+        #         ('This does not appear to be a valid Igor binary wave file. '
         #          'Error in checksum: should be 0, is {}.').format(c))
 
 
