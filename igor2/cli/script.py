@@ -5,13 +5,10 @@ import argparse as _argparse
 import logging
 import sys as _sys
 
-try:
-    import matplotlib as _matplotlib
-    import matplotlib.pyplot as _matplotlib_pyplot
-except ImportError as _matplotlib_import_error:
-    _matplotlib = None
+import matplotlib.pyplot as pyplot
 
-from ._version import __version__
+
+from .._version import __version__
 
 
 logger = logging.getLogger(__name__)
@@ -60,11 +57,9 @@ class Script (object):
     def plot_wave(self, args, wave, title=None):
         if not args.plot:
             return  # no-op
-        if not _matplotlib:
-            raise _matplotlib_import_error
         if title is None:
             title = wave['wave']['wave_header']['bname']
-        figure = _matplotlib_pyplot.figure()
+        figure = pyplot.figure()
         axes = figure.add_subplot(1, 1, 1)
         axes.set_title(title)
         try:
@@ -76,4 +71,4 @@ class Script (object):
 
     def display_plots(self):
         if self._num_plots:
-            _matplotlib_pyplot.show()
+            pyplot.show()

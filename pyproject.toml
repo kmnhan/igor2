@@ -28,7 +28,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-cli = [
+CLI = [
     "matplotlib",
     ]
 

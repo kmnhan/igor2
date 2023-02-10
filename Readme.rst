@@ -14,6 +14,14 @@ You can install igor2 via pip::
 
     pip install igor2
 
+The commands `igorbinarywave` and `igorpackedexperiment` are currently
+not properly implemented (see https://github.com/AFM-analysis/igor2/issues/6),
+but it should be straight-forward to fix this.
+
+To install igor2 with the command-line interface (CLI), run::
+
+    pip install igor2[CLI]
+
 
 Usage
 -----
