@@ -1,6 +1,7 @@
 0.5.0
  - BREAKING CHANGE: remove the igorpy compatibility layer
  - docs: include Readme.rst for description on PyPI
+ - tests: migrate to pytest best as possible
  - ref: remove hard-coded logging statement from __init__
  - ref: flake8
  - ref: remove clutter LGPL notices, nobody does that anymore and
