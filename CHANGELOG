@@ -3,6 +3,8 @@
  - docs: include Readme.rst for description on PyPI
  - ref: remove hard-coded logging statement from __init__
  - ref: flake8
+ - ref: remove clutter LGPL notices, nobody does that anymore and
+   the LGPL is advertised sufficiently elsewhere
 0.4.0
  - fix: merge all pull requests to original igor project (#1, #2, #3)
  - setup: migrate to pyproject.toml
