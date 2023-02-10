@@ -192,10 +192,18 @@ UserNumVarRec = _DynamicStructure(
     name='UserNumVarRec',
     fields=[
         ListedStaticStringField(
-            'c', 'name', help='Name of the string variable.', count=32),
-        _Field('h', 'type', help='0 = string, 1 = numeric.'),
+            'c',
+            'name',
+            help='Name of the string variable.',
+            count=32),
+        _Field(
+            'h',
+            'type',
+            help='0 = string, 1 = numeric.'),
         DynamicVarNumField(
-            VarNumRec, 'num', help='Type and value of the variable if it is numeric.  Not used for string.'),
+            VarNumRec,
+            'num',
+            help='Type and value of the variable if it is numeric.  Not used for string.'),
     ])
 
 # From Variables.h
@@ -203,13 +211,26 @@ UserDependentVarRec = _DynamicStructure(
     name='UserDependentVarRec',
     fields=[
         ListedStaticStringField(
-            'c', 'name', help='Name of the string variable.', count=32),
-        _Field('h', 'type', help='0 = string, 1 = numeric.'),
-        _Field(VarNumRec, 'num',
-               help='Type and value of the variable if it is numeric.  Not used for string.'),
-        _Field('h', 'formulaLen', help='The length of the dependency formula.'),
+            'c',
+            'name',
+            help='Name of the string variable.',
+            count=32),
+        _Field(
+            'h',
+            'type',
+            help='0 = string, 1 = numeric.'),
+        _Field(
+            VarNumRec,
+            'num',
+            help='Type and value of the variable if it is numeric.  Not used for string.'),
+        _Field(
+            'h',
+            'formulaLen',
+            help='The length of the dependency formula.'),
         DynamicFormulaField(
-            'c', 'formula', help='Start of the dependency formula. A C string including null terminator.'),
+            'c',
+            'formula',
+            help='Start of the dependency formula. A C string including null terminator.'),
     ])
 
 
