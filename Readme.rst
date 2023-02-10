@@ -1,6 +1,9 @@
 Igor2
 =====
 
+|PyPI Version| |Build Status| |Coverage Status|
+
+
 Python parser for Igor Binary Waves (.ibw) and Packed Experiment
 (.pxp) files written by WaveMetrics' IGOR Pro software.
 
@@ -79,3 +82,11 @@ with the project for details.
 .. _GNU Lesser General Public License Version 3:
     http://www.gnu.org/licenses/lgpl.txt
 .. _update-copyright: http://blog.tremily.us/posts/update-copyright/
+
+
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/igor2.svg
+   :target: https://pypi.python.org/pypi/igor2
+.. |Build Status| image:: https://img.shields.io/github/actions/workflow/status/AFM-analysis/igor2/check.yml?branch=master
+   :target: https://github.com/AFM-analysis/igor2/actions?query=workflow%3AChecks
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/AFM-analysis/igor2/master.svg
+   :target: https://codecov.io/gh/AFM-analysis/igor2
