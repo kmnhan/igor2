@@ -51,7 +51,7 @@ def hex_bytes(buffer, spaces=None):
     hex_bytes = ['{:02x}'.format(_ord(x)) for x in buffer]
     if spaces is None:
         return ''.join(hex_bytes)
-    elif spaces is 1:
+    elif spaces == 1:
         return ' '.join(hex_bytes)
     for i in range(len(hex_bytes)//spaces):
         hex_bytes.insert((spaces+1)*(i+1)-1, ' ')

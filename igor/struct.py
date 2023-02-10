@@ -433,7 +433,7 @@ class Structure (_struct.Struct):
 
     You can also read out from strings:
 
-    >>> d = experiment.unpack(b.tostring())
+    >>> d = experiment.unpack(b.tobytes())
     >>> pprint(d)
     {'runs': [{'data': array([[1543, 2057, 2571],
            [3085, 3599, 4113]]),
@@ -447,9 +447,9 @@ class Structure (_struct.Struct):
     values are filled in with their defaults.
 
     >>> experiment.pack_into(buffer=b, data=d)
-    >>> b.tostring()[:17]
+    >>> b.tobytes()[:17]
     '\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10'
-    >>> b.tostring()[17:]
+    >>> b.tobytes()[17:]
     '\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !'
     >>> run0 = d['runs'].pop(0)
     >>> b = experiment.pack(data=d)
