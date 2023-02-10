@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with %(project)s.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 r"""Test the igor module by loading sample files.
 
 >>> dumpibw('mac-double.ibw')  # doctest: +REPORT_UDIFF
@@ -1356,80 +1358,7 @@ record 49:
 record 50:
 '#include <Polar Graphs> version >= 3.0\n'
 <BLANKLINE>
-filesystem:
-{'root': {'K0': 0.0,
-          'K1': 0.0,
-          'K10': 0.0,
-          'K11': 0.0,
-          'K12': 0.0,
-          'K13': 0.0,
-          'K14': 0.0,
-          'K15': 0.0,
-          'K16': 0.0,
-          'K17': 0.0,
-          'K18': 0.0,
-          'K19': 0.0,
-          'K2': 0.0,
-          'K20': 128.0,
-          'K3': 0.0,
-          'K4': 0.0,
-          'K5': 0.0,
-          'K6': 0.0,
-          'K7': 0.0,
-          'K8': 0.0,
-          'K9': 0.0,
-          'Packages': {'PolarGraphs': {'V_bottom': 232.0,
-                                       'V_left': 1.0,
-                                       'V_max': 2.4158518093414401,
-                                       'V_min': -2.1848498883412,
-                                       'V_right': 232.0,
-                                       'V_top': 1.0,
-                                       'u_UniqWaveNdx': 8.0,
-                                       'u_UniqWinNdx': 3.0,
-                                       'u_angle0': 0.0,
-                                       'u_angleRange': 6.2831853071795862,
-                                       'u_colorList': 'black;blue;green;cyan;red;magenta;yellow;white;special',
-                                       'u_debug': 0.0,
-                                       'u_debugStr': 'Turn Debugging On',
-                                       'u_majorDelta': 0.0,
-                                       'u_numPlaces': 0.0,
-                                       'u_polAngle0': 0.26179938779914941,
-                                       'u_polAngleAxesWherePop': 'Off;Radius Start;Radius End;Radius Start and End;All Major Radii;At Listed Radii',
-                                       'u_polAngleRange': 1.0471975511965976,
-                                       'u_polAngleUnitsPop': 'deg;rad',
-                                       'u_polInnerRadius': -20.0,
-                                       'u_polLineStylePop': 'solid;dash 1;dash 2;dash 3;dash 4;dash 5;dash 6;dash 7;dash 8;dash 9;dash 10;dash 11;dash 12;dash 13;dash 14;dash 15;dash 16;dash 17;',
-                                       'u_polMajorAngleInc': 0.26179938779914941,
-                                       'u_polMajorRadiusInc': 10.0,
-                                       'u_polMinorAngleTicks': 3.0,
-                                       'u_polMinorRadiusTicks': 1.0,
-                                       'u_polOffOn': 'Off;On',
-                                       'u_polOuterRadius': 0.0,
-                                       'u_polRadAxesWherePop': '  Off;  Angle Start;  Angle Middle;  Angle End;  Angle Start and End;  0;  90;  180; -90;  0, 90;  90, 180; -180, -90; -90, 0;  0, 180;  90, -90;  0, 90, 180, -90;  All Major Angles;  At Listed Angles',
-                                       'u_polRotPop': ' -90;  0; +90; +180',
-                                       'u_popup': '',
-                                       'u_prompt': '',
-                                       'u_segsPerMinorArc': 3.0,
-                                       'u_tickDelta': 0.0,
-                                       'u_var': 0.0,
-                                       'u_x1': 11.450159535018935,
-                                       'u_x2': 12.079591517721363,
-                                       'u_y1': 42.732577139459856,
-                                       'u_y2': 45.081649278814126},
-                       'WMDataBase': {'u_dataBase': ';PolarGraph0:,appendRadius=radiusData,...,useCircles=2,maxArcLine=6;',
-                                      'u_dbBadStringChars': ',;=:',
-                                      'u_dbCurrBag': 'PolarGraph1',
-                                      'u_dbCurrContents': ',appendRadius=radiusQ1,...,useCircles=2,maxArcLine=6;',
-                                      'u_dbReplaceBadChars': '\xa9\xae\x99\x9f',
-                                      'u_str': '2'}},
-          'W_plrX5': <WaveRecord ...>,
-          'W_plrX6': <WaveRecord ...>,
-          'W_plrY5': <WaveRecord ...>,
-          'W_plrY6': <WaveRecord ...>,
-          'angleData': <WaveRecord ...>,
-          'angleQ1': <WaveRecord ...>,
-          'radiusData': <WaveRecord ...>,
-          'radiusQ1': <WaveRecord ...>}}
+filesystem keys: ['root']
 <BLANKLINE>
 walking filesystem:
 walk callback on ([], root, {'K0': 0.0,...})
@@ -1471,7 +1400,7 @@ def dumpibw(filename):
 
 def walk_callback(dirpath, key, value):
     print('walk callback on ({}, {}, {})'.format(
-            dirpath, key, pformat(value)))
+            dirpath, key, '{...}' if isinstance(value, dict) else value))
 
 def dumppxp(filename, walk=True):
     LOG.info('Testing {}\n'.format(filename))
@@ -1489,8 +1418,7 @@ def dumppxp(filename, walk=True):
             pprint(record.wave)
         else:
             pprint(record)
-    print('\nfilesystem:')
-    pprint(filesystem)
+    print('\nfilesystem keys:', sorted(filesystem.keys()))
     if walk:
         print('\nwalking filesystem:')
         _walk(filesystem, walk_callback)
