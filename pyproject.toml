@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "igor2"
+authors = [
+    {name = "Paul Kienzle"},
+    {name = "W. Trevor King"},
+    {name = "Aurelien Jaquier"},
+    {name = "Zbigniew Jędrzejewski-Szmek"},
+    {name = "Paul Müller"},
+]
+description = "interface for reading binary IGOR files"
+readme = "README.rst"
+requires-python = ">=3.8, <4"
+classifiers = [
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'Operating System :: OS Independent',
+    'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+    'Programming Language :: Python :: 3',
+]
+license = {text = "GNU Lesser General Public License v3 or later (LGPLv3+)"}
+dependencies = [
+    "numpy",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+cli = [
+    "matplotlib",
+    ]
+
+[project.scripts]
+igorbinarywave = 'igor2.cli:igorbinarywave'
+igorpackedexperiment = 'igor2.cli:igorpackedexperiment'
+
+[tool.setuptools]
+packages = ["igor2"]
+
+[tool.setuptools_scm]
+write_to = "igor2/_version.py"
+version_scheme = "post-release"

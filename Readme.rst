@@ -8,8 +8,6 @@ Igor2 is the continuation of the inactive igor project, forked
 from W. Trevor King and originally written by Paul Kienzle (see
 git history).
 
-:License: GNU General Public License, version 3+
-
 Installation
 ------------
 You can install igor2 via pip::
@@ -39,16 +37,6 @@ For details on their usage, use the ``--help`` option.  For example::
 
   $ igorbinarywave.py --help
 
-For users transitioning from igor.py_, there's a compatibility module
-exposing the old interface.  Just change::
-
-  import igor
-
-to::
-
-  import igor.igorpy as igor
-
-in your calling code.
 
 Testing
 -------
@@ -68,8 +56,6 @@ This project is distributed under the `GNU Lesser General Public
 License Version 3`_ or greater, see the ``COPYING`` file distributed
 with the project for details.
 
-Links
------
 
 .. _layman: http://layman.sourceforge.net/
 .. _wtk overlay: http://blog.tremily.us/posts/Gentoo_overlay/

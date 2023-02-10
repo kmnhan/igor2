@@ -4,4 +4,7 @@ build/
 dist/
 igor.egg-info/
 *.pyc
-.ida
+.idea
+igor2/_version.py
+
+*.egg-info
