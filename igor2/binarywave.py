@@ -1,22 +1,5 @@
-# Copyright (C) 2010-2012 W. Trevor King <wking@tremily.us>
-#
-# This file is part of igor.
-#
-# igor is free software: you can redistribute it and/or modify it under the
-# terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
-#
-# igor is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with igor.  If not, see <http://www.gnu.org/licenses/>.
-
-"Read IGOR Binary Wave files into Numpy arrays."
-
+"""Read IGOR Binary Wave files into Numpy arrays."""
+import logging
 # Based on WaveMetric's Technical Note 003, "Igor Binary Format"
 #   ftp://ftp.wavemetrics.net/IgorPro/Technical_Notes/TN003.zip
 # From ftp://ftp.wavemetrics.net/IgorPro/Technical_Notes/TN000.txt
@@ -24,25 +7,18 @@
 #   exception that you cannot resell them. So read, enjoy, and
 #   share. We hope IGOR Technical Notes will provide you with lots of
 #   valuable information while you are developing IGOR applications.
-
-from __future__ import absolute_import
-import array as _array
-import struct as _struct
-import sys as _sys
-import types as _types
-
 import numpy as _numpy
 
-from . import LOG as _LOG
 from .struct import Structure as _Structure
 from .struct import DynamicStructure as _DynamicStructure
 from .struct import Field as _Field
 from .struct import DynamicField as _DynamicField
-from .util import assert_null as _assert_null
 from .util import byte_order as _byte_order
 from .util import need_to_reorder_bytes as _need_to_reorder_bytes
 from .util import checksum as _checksum
 
+
+logger = logging.getLogger(__name__)
 
 # Numpy doesn't support complex integers by default, see
 #   http://mail.python.org/pipermail/python-dev/2002-April/022408.html
@@ -63,6 +39,7 @@ complexUInt32 = _numpy.dtype(
 class StaticStringField (_DynamicField):
     _null_terminated = False
     _array_size_field = None
+
     def __init__(self, *args, **kwargs):
         if 'array' not in kwargs:
             kwargs['array'] = True
@@ -106,29 +83,29 @@ class NullStaticStringField (StaticStringField):
 
 # From IgorMath.h
 TYPE_TABLE = {        # (key: integer flag, value: numpy dtype)
-    0:None,           # Text wave, not handled in ReadWave.c
-    1:_numpy.complex_,# NT_CMPLX, makes number complex.
-    2:_numpy.float32, # NT_FP32, 32 bit fp numbers.
-    3:_numpy.complex64,
-    4:_numpy.float64, # NT_FP64, 64 bit fp numbers.
-    5:_numpy.complex128,
-    8:_numpy.int8,    # NT_I8, 8 bit signed integer. Requires Igor Pro
+    0: None,           # Text wave, not handled in ReadWave.c
+    1: _numpy.complex_,  # NT_CMPLX, makes number complex.
+    2: _numpy.float32,  # NT_FP32, 32 bit fp numbers.
+    3: _numpy.complex64,
+    4: _numpy.float64,  # NT_FP64, 64 bit fp numbers.
+    5: _numpy.complex128,
+    8: _numpy.int8,    # NT_I8, 8 bit signed integer. Requires Igor Pro
                       # 2.0 or later.
-    9:complexInt8,
-    0x10:_numpy.int16,# NT_I16, 16 bit integer numbers. Requires Igor
+    9: complexInt8,
+    0x10: _numpy.int16,  # NT_I16, 16 bit integer numbers. Requires Igor
                       # Pro 2.0 or later.
-    0x11:complexInt16,
-    0x20:_numpy.int32,# NT_I32, 32 bit integer numbers. Requires Igor
+    0x11: complexInt16,
+    0x20: _numpy.int32,  # NT_I32, 32 bit integer numbers. Requires Igor
                       # Pro 2.0 or later.
-    0x21:complexInt32,
-#   0x40:None,        # NT_UNSIGNED, Makes above signed integers
-#                     # unsigned. Requires Igor Pro 3.0 or later.
-    0x48:_numpy.uint8,
-    0x49:complexUInt8,
-    0x50:_numpy.uint16,
-    0x51:complexUInt16,
-    0x60:_numpy.uint32,
-    0x61:complexUInt32,
+    0x21: complexInt32,
+    #   0x40:None,        # NT_UNSIGNED, Makes above signed integers
+    #                     # unsigned. Requires Igor Pro 3.0 or later.
+    0x48: _numpy.uint8,
+    0x49: complexUInt8,
+    0x50: _numpy.uint16,
+    0x51: complexUInt16,
+    0x60: _numpy.uint32,
+    0x61: complexUInt32,
 }
 
 # From wave.h
@@ -138,50 +115,74 @@ MAXDIMS = 4
 BinHeader1 = _Structure(  # `version` field pulled out into Wave
     name='BinHeader1',
     fields=[
-        _Field('l', 'wfmSize', help='The size of the WaveHeader2 data structure plus the wave data plus 16 bytes of padding.'),
-        _Field('h', 'checksum', help='Checksum over this header and the wave header.'),
-        ])
+        _Field(
+            'l',
+            'wfmSize',
+            help='The size of the WaveHeader2 data structure plus the wave data plus 16 bytes of padding.'),
+        _Field('h', 'checksum',
+               help='Checksum over this header and the wave header.'),
+    ])
 
 BinHeader2 = _Structure(  # `version` field pulled out into Wave
     name='BinHeader2',
     fields=[
-        _Field('l', 'wfmSize', help='The size of the WaveHeader2 data structure plus the wave data plus 16 bytes of padding.'),
+        _Field(
+            'l',
+            'wfmSize',
+            help='The size of the WaveHeader2 data structure plus the wave data plus 16 bytes of padding.'),
         _Field('l', 'noteSize', help='The size of the note text.'),
-        _Field('l', 'pictSize', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('h', 'checksum', help='Checksum over this header and the wave header.'),
-        ])
+        _Field('l', 'pictSize', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('h', 'checksum',
+               help='Checksum over this header and the wave header.'),
+    ])
 
 BinHeader3 = _Structure(  # `version` field pulled out into Wave
     name='BinHeader3',
     fields=[
-        _Field('l', 'wfmSize', help='The size of the WaveHeader2 data structure plus the wave data plus 16 bytes of padding.'),
+        _Field(
+            'l',
+            'wfmSize',
+            help='The size of the WaveHeader2 data structure plus the wave data plus 16 bytes of padding.'),
         _Field('l', 'noteSize', help='The size of the note text.'),
-        _Field('l', 'formulaSize', help='The size of the dependency formula, if any.'),
-        _Field('l', 'pictSize', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('h', 'checksum', help='Checksum over this header and the wave header.'),
-        ])
+        _Field('l', 'formulaSize',
+               help='The size of the dependency formula, if any.'),
+        _Field('l', 'pictSize', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('h', 'checksum',
+               help='Checksum over this header and the wave header.'),
+    ])
 
 BinHeader5 = _Structure(  # `version` field pulled out into Wave
     name='BinHeader5',
     fields=[
-        _Field('h', 'checksum', help='Checksum over this header and the wave header.'),
-        _Field('l', 'wfmSize', help='The size of the WaveHeader5 data structure plus the wave data.'),
-        _Field('l', 'formulaSize', help='The size of the dependency formula, if any.'),
+        _Field('h', 'checksum',
+               help='Checksum over this header and the wave header.'),
+        _Field('l', 'wfmSize',
+               help='The size of the WaveHeader5 data structure plus the wave data.'),
+        _Field('l', 'formulaSize',
+               help='The size of the dependency formula, if any.'),
         _Field('l', 'noteSize', help='The size of the note text.'),
-        _Field('l', 'dataEUnitsSize', help='The size of optional extended data units.'),
-        _Field('l', 'dimEUnitsSize', help='The size of optional extended dimension units.', count=MAXDIMS, array=True),
-        _Field('l', 'dimLabelsSize', help='The size of optional dimension labels.', count=MAXDIMS, array=True),
-        _Field('l', 'sIndicesSize', help='The size of string indicies if this is a text wave.'),
-        _Field('l', 'optionsSize1', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('l', 'optionsSize2', default=0, help='Reserved. Write zero. Ignore on read.'),
-        ])
+        _Field('l', 'dataEUnitsSize',
+               help='The size of optional extended data units.'),
+        _Field('l', 'dimEUnitsSize', help='The size of optional extended dimension units.',
+               count=MAXDIMS, array=True),
+        _Field('l', 'dimLabelsSize', help='The size of optional dimension labels.',
+               count=MAXDIMS, array=True),
+        _Field('l', 'sIndicesSize',
+               help='The size of string indicies if this is a text wave.'),
+        _Field('l', 'optionsSize1', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('l', 'optionsSize2', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+    ])
 
 
 # From wave.h
-MAX_WAVE_NAME2 = 18 # Maximum length of wave name in version 1 and 2
-                    # files. Does not include the trailing null.
-MAX_WAVE_NAME5 = 31 # Maximum length of wave name in version 5
-                    # files. Does not include the trailing null.
+MAX_WAVE_NAME2 = 18  # Maximum length of wave name in version 1 and 2
+# files. Does not include the trailing null.
+MAX_WAVE_NAME5 = 31  # Maximum length of wave name in version 5
+# files. Does not include the trailing null.
 MAX_UNIT_CHARS = 3
 
 # Header to an array of waveform data.
@@ -190,32 +191,52 @@ MAX_UNIT_CHARS = 3
 WaveHeader2 = _DynamicStructure(
     name='WaveHeader2',
     fields=[
-        _Field('h', 'type', help='See types (e.g. NT_FP64) above. Zero for text waves.'),
-        _Field('P', 'next', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        NullStaticStringField('c', 'bname', help='Name of wave plus trailing null.', count=MAX_WAVE_NAME2+2),
+        _Field(
+            'h',
+            'type',
+            help='See types (e.g. NT_FP64) above. Zero for text waves.'),
+        _Field('P', 'next', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        NullStaticStringField(
+            'c', 'bname', help='Name of wave plus trailing null.', count=MAX_WAVE_NAME2 + 2),
         _Field('h', 'whVersion', default=0, help='Write 0. Ignore on read.'),
-        _Field('h', 'srcFldr', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('P', 'fileName', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('c', 'dataUnits', default=0, help='Natural data units go here - null if none.', count=MAX_UNIT_CHARS+1, array=True),
-        _Field('c', 'xUnits', default=0, help='Natural x-axis units go here - null if none.', count=MAX_UNIT_CHARS+1, array=True),
+        _Field('h', 'srcFldr', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('P', 'fileName', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('c', 'dataUnits', default=0, help='Natural data units go here - null if none.',
+               count=MAX_UNIT_CHARS + 1, array=True),
+        _Field('c', 'xUnits', default=0, help='Natural x-axis units go here - null if none.',
+               count=MAX_UNIT_CHARS + 1, array=True),
         _Field('l', 'npnts', help='Number of data points in wave.'),
-        _Field('h', 'aModified', default=0, help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('h', 'aModified', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
         _Field('d', 'hsA', help='X value for point p = hsA*p + hsB'),
         _Field('d', 'hsB', help='X value for point p = hsA*p + hsB'),
-        _Field('h', 'wModified', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('h', 'swModified', default=0, help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('h', 'wModified', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('h', 'swModified', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
         _Field('h', 'fsValid', help='True if full scale values have meaning.'),
-        _Field('d', 'topFullScale', help='The min full scale value for wave.'), # sic, 'min' should probably be 'max'
+        # sic, 'min' should probably be 'max'
+        _Field('d', 'topFullScale', help='The min full scale value for wave.'),
         _Field('d', 'botFullScale', help='The min full scale value for wave.'),
-        _Field('c', 'useBits', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('c', 'kindBits', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('P', 'formula', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('l', 'depID', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('L', 'creationDate', help='DateTime of creation.  Not used in version 1 files.'),
-        _Field('c', 'wUnused', default=0, help='Reserved. Write zero. Ignore on read.', count=2, array=True),
+        _Field('c', 'useBits', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('c', 'kindBits', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('P', 'formula', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('l', 'depID', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('L', 'creationDate',
+               help='DateTime of creation.  Not used in version 1 files.'),
+        _Field('c', 'wUnused', default=0,
+               help='Reserved. Write zero. Ignore on read.', count=2, array=True),
         _Field('L', 'modDate', help='DateTime of last modification.'),
-        _Field('P', 'waveNoteH', help='Used in memory only. Write zero. Ignore on read.'),
-        ])
+        _Field('P', 'waveNoteH',
+               help='Used in memory only. Write zero. Ignore on read.'),
+    ])
 
 # `sIndices` pointer unset (use Wave5_data['sIndices'] instead).  This
 # field is filled in by DynamicStringIndicesDataField.
@@ -226,43 +247,78 @@ WaveHeader5 = _DynamicStructure(
         _Field('P', 'next', help='link to next wave in linked list.'),
         _Field('L', 'creationDate', help='DateTime of creation.'),
         _Field('L', 'modDate', help='DateTime of last modification.'),
-        _Field('l', 'npnts', help='Total number of points (multiply dimensions up to first zero).'),
-        _Field('h', 'type', help='See types (e.g. NT_FP64) above. Zero for text waves.'),
-        _Field('h', 'dLock', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('c', 'whpad1', default=0, help='Reserved. Write zero. Ignore on read.', count=6, array=True),
+        _Field(
+            'l', 'npnts', help='Total number of points (multiply dimensions up to first zero).'),
+        _Field(
+            'h',
+            'type',
+            help='See types (e.g. NT_FP64) above. Zero for text waves.'),
+        _Field('h', 'dLock', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('c', 'whpad1', default=0,
+               help='Reserved. Write zero. Ignore on read.', count=6, array=True),
         _Field('h', 'whVersion', default=1, help='Write 1. Ignore on read.'),
-        NullStaticStringField('c', 'bname', help='Name of wave plus trailing null.', count=MAX_WAVE_NAME5+1),
-        _Field('l', 'whpad2', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('P', 'dFolder', default=0, help='Used in memory only. Write zero. Ignore on read.'),
+        NullStaticStringField(
+            'c', 'bname', help='Name of wave plus trailing null.', count=MAX_WAVE_NAME5 + 1),
+        _Field('l', 'whpad2', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('P', 'dFolder', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
         # Dimensioning info. [0] == rows, [1] == cols etc
-        _Field('l', 'nDim', help='Number of of items in a dimension -- 0 means no data.', count=MAXDIMS, array=True),
-        _Field('d', 'sfA', help='Index value for element e of dimension d = sfA[d]*e + sfB[d].', count=MAXDIMS, array=True),
-        _Field('d', 'sfB', help='Index value for element e of dimension d = sfA[d]*e + sfB[d].', count=MAXDIMS, array=True),
+        _Field('l', 'nDim', help='Number of of items in a dimension -- 0 means no data.',
+               count=MAXDIMS, array=True),
+        _Field(
+            'd', 'sfA', help='Index value for element e of dimension d = sfA[d]*e + sfB[d].', count=MAXDIMS, array=True),
+        _Field(
+            'd', 'sfB', help='Index value for element e of dimension d = sfA[d]*e + sfB[d].', count=MAXDIMS, array=True),
         # SI units
-        _Field('c', 'dataUnits', default=0, help='Natural data units go here - null if none.', count=MAX_UNIT_CHARS+1, array=True),
-        _Field('c', 'dimUnits', default=0, help='Natural dimension units go here - null if none.', count=(MAXDIMS, MAX_UNIT_CHARS+1), array=True),
+        _Field('c', 'dataUnits', default=0, help='Natural data units go here - null if none.',
+               count=MAX_UNIT_CHARS + 1, array=True),
+        _Field('c', 'dimUnits', default=0, help='Natural dimension units go here - null if none.',
+               count=(MAXDIMS, MAX_UNIT_CHARS + 1), array=True),
         _Field('h', 'fsValid', help='TRUE if full scale values have meaning.'),
-        _Field('h', 'whpad3', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('d', 'topFullScale', help='The max and max full scale value for wave'), # sic, probably "max and min"
-        _Field('d', 'botFullScale', help='The max and max full scale value for wave.'), # sic, probably "max and min"
-        _Field('P', 'dataEUnits', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('P', 'dimEUnits', default=0, help='Used in memory only. Write zero.  Ignore on read.', count=MAXDIMS, array=True),
-        _Field('P', 'dimLabels', default=0, help='Used in memory only. Write zero.  Ignore on read.', count=MAXDIMS, array=True),
-        _Field('P', 'waveNoteH', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('l', 'whUnused', default=0, help='Reserved. Write zero. Ignore on read.', count=16, array=True),
+        _Field('h', 'whpad3', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        # sic, probably "max and min"
+        _Field('d', 'topFullScale',
+               help='The max and max full scale value for wave'),
+        # sic, probably "max and min"
+        _Field('d', 'botFullScale',
+               help='The max and max full scale value for wave.'),
+        _Field('P', 'dataEUnits', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('P', 'dimEUnits', default=0,
+               help='Used in memory only. Write zero.  Ignore on read.', count=MAXDIMS, array=True),
+        _Field('P', 'dimLabels', default=0,
+               help='Used in memory only. Write zero.  Ignore on read.', count=MAXDIMS, array=True),
+        _Field('P', 'waveNoteH', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('l', 'whUnused', default=0,
+               help='Reserved. Write zero. Ignore on read.', count=16, array=True),
         # The following stuff is considered private to Igor.
-        _Field('h', 'aModified', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('h', 'wModified', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('h', 'swModified', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('c', 'useBits', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('c', 'kindBits', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('P', 'formula', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('l', 'depID', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('h', 'whpad4', default=0, help='Reserved. Write zero. Ignore on read.'),
-        _Field('h', 'srcFldr', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('P', 'fileName', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        _Field('P', 'sIndices', default=0, help='Used in memory only. Write zero. Ignore on read.'),
-        ])
+        _Field('h', 'aModified', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('h', 'wModified', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('h', 'swModified', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('c', 'useBits', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('c', 'kindBits', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('P', 'formula', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('l', 'depID', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('h', 'whpad4', default=0,
+               help='Reserved. Write zero. Ignore on read.'),
+        _Field('h', 'srcFldr', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('P', 'fileName', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+        _Field('P', 'sIndices', default=0,
+               help='Used in memory only. Write zero. Ignore on read.'),
+    ])
 
 
 class DynamicWaveDataField1 (_DynamicField):
@@ -296,7 +352,7 @@ class DynamicWaveDataField1 (_DynamicField):
         if (version == 3 and
             self.count > 0 and
             bin_header['formulaSize'] > 0 and
-            self.data_size == 0):
+                self.data_size == 0):
             """From TN003:
 
             Igor Pro 2.00 included support for dependency formulae. If
@@ -338,9 +394,9 @@ class DynamicWaveDataField1 (_DynamicField):
                 dtype=self.dtype,
                 buffer=data_b,
                 order='F',
-                )
-        except:
-            _LOG.error(
+            )
+        except BaseException:
+            logger.error(
                 'could not reshape data from {} to {}'.format(
                     self.shape, data_b))
             raise
@@ -349,6 +405,7 @@ class DynamicWaveDataField1 (_DynamicField):
 
 class DynamicWaveDataField5 (DynamicWaveDataField1):
     "Adds support for multidimensional data."
+
     def _get_size(self, bin_header, wave_header_size):
         return bin_header['wfmSize'] - wave_header_size
 
@@ -466,8 +523,8 @@ class DynamicLabelsField (DynamicStringField):
             if end > start:
                 dim_data = d[start:end]
                 chunks = []
-                for i in range(size//32):
-                    chunks.append(dim_data[32*i:32*(i+1)])
+                for i in range(size // 32):
+                    chunks.append(dim_data[32 * i:32 * (i + 1)])
                 labels = [b'']
                 for chunk in chunks:
                     labels[-1] = labels[-1] + b''.join(chunk)
@@ -484,6 +541,7 @@ class DynamicLabelsField (DynamicStringField):
 class DynamicStringIndicesDataField (_DynamicField):
     """String indices used for text waves only
     """
+
     def pre_pack(self, parents, data):
         raise NotImplementedError()
 
@@ -507,7 +565,7 @@ class DynamicStringIndicesDataField (_DynamicField):
         wdata = wave_data['wData']
         strings = []
         start = 0
-        for i,offset in enumerate(wave_data['sIndices']):
+        for i, offset in enumerate(wave_data['sIndices']):
             if offset > start:
                 chars = wdata[start:offset]
                 strings.append(b''.join(chars))
@@ -521,7 +579,7 @@ class DynamicStringIndicesDataField (_DynamicField):
         try:
             wdata = wdata.reshape(shape)
         except ValueError:
-            _LOG.error(
+            logger.error(
                 'could not reshape strings from {} to {}'.format(
                     shape, wdata.shape))
             raise
@@ -539,7 +597,7 @@ class DynamicVersionField (_DynamicField):
         if wave_structure.byte_order in '@=':
             need_to_reorder_bytes = _need_to_reorder_bytes(version)
             wave_structure.byte_order = _byte_order(need_to_reorder_bytes)
-            _LOG.debug(
+            logger.debug(
                 'get byte order from version: {} (reorder? {})'.format(
                     wave_structure.byte_order, need_to_reorder_bytes))
         else:
@@ -559,8 +617,8 @@ class DynamicVersionField (_DynamicField):
                 'invalid binary wave version: {}'.format(version))
 
         if wave_structure.fields[-1].format != old_format:
-            _LOG.debug('change wave headers from {} to {}'.format(
-                    old_format, wave_structure.fields[-1].format))
+            logger.debug('change wave headers from {} to {}'.format(
+                old_format, wave_structure.fields[-1].format))
             wave_structure.setup()
         elif need_to_reorder_bytes:
             wave_structure.setup()
@@ -584,55 +642,72 @@ class DynamicWaveField (_DynamicField):
                 ('This does not appear to be a valid Igor binary wave file.  '
                  'Error in checksum: should be 0, is {}.').format(c))
 
+
 Wave1 = _DynamicStructure(
     name='Wave1',
     fields=[
         _Field(BinHeader1, 'bin_header', help='Binary wave header'),
         _Field(WaveHeader2, 'wave_header', help='Wave header'),
-        DynamicWaveDataField1('f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
-        ])
+        DynamicWaveDataField1(
+            'f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
+    ])
 
 Wave2 = _DynamicStructure(
     name='Wave2',
     fields=[
         _Field(BinHeader2, 'bin_header', help='Binary wave header'),
         _Field(WaveHeader2, 'wave_header', help='Wave header'),
-        DynamicWaveDataField1('f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
-        _Field('x', 'padding', help='16 bytes of padding in versions 2 and 3.', count=16, array=True),
-        DynamicWaveNoteField('c', 'note', help='Optional wave note data', count=0, array=True),
-        ])
+        DynamicWaveDataField1(
+            'f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
+        _Field('x', 'padding', help='16 bytes of padding in versions 2 and 3.',
+               count=16, array=True),
+        DynamicWaveNoteField(
+            'c', 'note', help='Optional wave note data', count=0, array=True),
+    ])
 
 Wave3 = _DynamicStructure(
     name='Wave3',
     fields=[
         _Field(BinHeader3, 'bin_header', help='Binary wave header'),
         _Field(WaveHeader2, 'wave_header', help='Wave header'),
-        DynamicWaveDataField1('f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
-        _Field('x', 'padding', help='16 bytes of padding in versions 2 and 3.', count=16, array=True),
-        DynamicWaveNoteField('c', 'note', help='Optional wave note data', count=0, array=True),
-        DynamicDependencyFormulaField('c', 'formula', help='Optional wave dependency formula', count=0, array=True),
-        ])
+        DynamicWaveDataField1(
+            'f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
+        _Field('x', 'padding', help='16 bytes of padding in versions 2 and 3.',
+               count=16, array=True),
+        DynamicWaveNoteField(
+            'c', 'note', help='Optional wave note data', count=0, array=True),
+        DynamicDependencyFormulaField(
+            'c', 'formula', help='Optional wave dependency formula', count=0, array=True),
+    ])
 
 Wave5 = _DynamicStructure(
     name='Wave5',
     fields=[
         _Field(BinHeader5, 'bin_header', help='Binary wave header'),
         _Field(WaveHeader5, 'wave_header', help='Wave header'),
-        DynamicWaveDataField5('f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
-        DynamicDependencyFormulaField('c', 'formula', help='Optional wave dependency formula.', count=0, array=True),
-        DynamicWaveNoteField('c', 'note', help='Optional wave note data.', count=0, array=True),
-        DynamicDataUnitsField('c', 'data_units', help='Optional extended data units data.', count=0, array=True),
-        DynamicDimensionUnitsField('c', 'dimension_units', help='Optional dimension label data', count=0, array=True),
-        DynamicLabelsField('c', 'labels', help="Optional dimension label data", count=0, array=True),
-        DynamicStringIndicesDataField('P', 'sIndices', help='Dynamic string indices for text waves.', count=0, array=True),
-        ])
+        DynamicWaveDataField5(
+            'f', 'wData', help='The start of the array of waveform data.', count=0, array=True),
+        DynamicDependencyFormulaField(
+            'c', 'formula', help='Optional wave dependency formula.', count=0, array=True),
+        DynamicWaveNoteField(
+            'c', 'note', help='Optional wave note data.', count=0, array=True),
+        DynamicDataUnitsField(
+            'c', 'data_units', help='Optional extended data units data.', count=0, array=True),
+        DynamicDimensionUnitsField(
+            'c', 'dimension_units', help='Optional dimension label data', count=0, array=True),
+        DynamicLabelsField(
+            'c', 'labels', help="Optional dimension label data", count=0, array=True),
+        DynamicStringIndicesDataField(
+            'P', 'sIndices', help='Dynamic string indices for text waves.', count=0, array=True),
+    ])
 
 Wave = _DynamicStructure(
     name='Wave',
     fields=[
-        DynamicVersionField('h', 'version', help='Version number for backwards compatibility.'),
+        DynamicVersionField(
+            'h', 'version', help='Version number for backwards compatibility.'),
         DynamicWaveField(Wave1, 'wave', help='The rest of the wave data.'),
-        ])
+    ])
 
 
 def load(filename):

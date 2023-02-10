@@ -29,7 +29,7 @@ from igor.script import Script
 class PackedScript (Script):
     def _run(self, args):
         self.args = args
-        records,filesystem = load(args.infile)
+        records, filesystem = load(args.infile)
         if hasattr(args.outfile, 'write'):
             f = args.outfile  # filename is actually a stream object
         else:

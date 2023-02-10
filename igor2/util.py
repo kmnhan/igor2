@@ -34,6 +34,7 @@ def _ord(byte):
     else:
         return ord(byte)
 
+
 def hex_bytes(buffer, spaces=None):
     r"""Pretty-printing for binary buffers.
 
@@ -53,9 +54,10 @@ def hex_bytes(buffer, spaces=None):
         return ''.join(hex_bytes)
     elif spaces == 1:
         return ' '.join(hex_bytes)
-    for i in range(len(hex_bytes)//spaces):
-        hex_bytes.insert((spaces+1)*(i+1)-1, ' ')
+    for i in range(len(hex_bytes) // spaces):
+        hex_bytes.insert((spaces + 1) * (i + 1) - 1, ' ')
     return ''.join(hex_bytes)
+
 
 def assert_null(buffer, strict=True):
     r"""Ensure an input buffer is entirely zero.
@@ -82,15 +84,19 @@ def assert_null(buffer, strict=True):
                 'warning: post-data padding not zero: {}\n'.format(hex_string))
 
 # From ReadWave.c
+
+
 def byte_order(needToReorderBytes):
     little_endian = _sys.byteorder == 'little'
     if needToReorderBytes:
         little_endian = not little_endian
     if little_endian:
         return '<'  # little-endian
-    return '>'  # big-endian    
+    return '>'  # big-endian
 
 # From ReadWave.c
+
+
 def need_to_reorder_bytes(version):
     # If the low order byte of the version field of the BinHeader
     # structure is zero then the file is from a platform that uses
@@ -99,10 +105,12 @@ def need_to_reorder_bytes(version):
     return version & 0xFF == 0
 
 # From ReadWave.c
+
+
 def checksum(buffer, byte_order, oldcksum, numbytes):
     x = _numpy.ndarray(
-        (numbytes/2,), # 2 bytes to a short -- ignore trailing odd byte
-        dtype=_numpy.dtype(byte_order+'h'),
+        (numbytes / 2,),  # 2 bytes to a short -- ignore trailing odd byte
+        dtype=_numpy.dtype(byte_order + 'h'),
         buffer=buffer)
     oldcksum += x.sum()
     if oldcksum > 2**31:  # fake the C implementation's int rollover
@@ -110,6 +118,7 @@ def checksum(buffer, byte_order, oldcksum, numbytes):
         if oldcksum > 2**31:
             oldcksum -= 2**31
     return oldcksum & 0xffff
+
 
 def _bytes(obj, encoding='utf-8'):
     """Convert bytes or strings into bytes

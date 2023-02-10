@@ -1,23 +1,6 @@
-# Copyright (C) 2012 W. Trevor King <wking@tremily.us>
-#
-# This file is part of igor.
-#
-# igor is free software: you can redistribute it and/or modify it under the
-# terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
-#
-# igor is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with igor.  If not, see <http://www.gnu.org/licenses/>.
+"""Read IGOR Packed Experiment files files into records."""
+import logging
 
-"Read IGOR Packed Experiment files files into records."
-
-from . import LOG as _LOG
 from .struct import Structure as _Structure
 from .struct import Field as _Field
 from .util import byte_order as _byte_order
@@ -32,6 +15,8 @@ from .record.variables import VariablesRecord as _VariablesRecord
 from .record.wave import WaveRecord as _WaveRecord
 
 
+logger = logging.getLogger(__name__)
+
 # From PTN003:
 # Igor writes other kinds of records in a packed experiment file, for
 # storing things like pictures, page setup records, and miscellaneous
@@ -44,19 +29,21 @@ PackedFileRecordHeader = _Structure(
     name='PackedFileRecordHeader',
     fields=[
         _Field('H', 'recordType', help='Record type plus superceded flag.'),
-        _Field('h', 'version', help='Version information depends on the type of record.'),
-        _Field('l', 'numDataBytes', help='Number of data bytes in the record following this record header.'),
-        ])
+        _Field('h', 'version',
+               help='Version information depends on the type of record.'),
+        _Field('l', 'numDataBytes',
+               help='Number of data bytes in the record following this record header.'),
+    ])
 
-#CR_STR = '\x15'  (\r)
+# CR_STR = '\x15'  (\r)
 
 PACKEDRECTYPE_MASK = 0x7FFF  # Record type = (recordType & PACKEDREC_TYPE_MASK)
 SUPERCEDED_MASK = 0x8000  # Bit is set if the record is superceded by
-                          # a later record in the packed file.
+# a later record in the packed file.
 
 
 def load(filename, strict=True, ignore_unknown=True):
-    _LOG.debug('loading a packed experiment file from {}'.format(filename))
+    logger.debug('loading a packed experiment file from {}'.format(filename))
     records = []
     if hasattr(filename, 'read'):
         f = filename  # filename is actually a stream object
@@ -75,19 +62,19 @@ def load(filename, strict=True, ignore_unknown=True):
                 raise ValueError(
                     ('not enough data for the next record header ({} < {})'
                      ).format(len(b), PackedFileRecordHeader.size))
-            _LOG.debug('reading a new packed experiment file record')
+            logger.debug('reading a new packed experiment file record')
             header = PackedFileRecordHeader.unpack_from(b)
             if header['version'] and not byte_order:
                 need_to_reorder = _need_to_reorder_bytes(header['version'])
                 byte_order = initial_byte_order = _byte_order(need_to_reorder)
-                _LOG.debug(
+                logger.debug(
                     'get byte order from version: {} (reorder? {})'.format(
                         byte_order, need_to_reorder))
                 if need_to_reorder:
                     PackedFileRecordHeader.byte_order = byte_order
                     PackedFileRecordHeader.setup()
                     header = PackedFileRecordHeader.unpack_from(b)
-                    _LOG.debug(
+                    logger.debug(
                         'reordered version: {}'.format(header['version']))
             data = bytes(f.read(header['numDataBytes']))
             if len(data) < header['numDataBytes']:
@@ -96,22 +83,23 @@ def load(filename, strict=True, ignore_unknown=True):
                      ).format(len(b), header['numDataBytes']))
             record_type = _RECORD_TYPE.get(
                 header['recordType'] & PACKEDRECTYPE_MASK, _UnknownRecord)
-            _LOG.debug('the new record has type {} ({}).'.format(
-                    record_type, header['recordType']))
+            logger.debug('the new record has type {} ({}).'.format(
+                record_type, header['recordType']))
             if record_type in [_UnknownRecord, _UnusedRecord
                                ] and not ignore_unknown:
                 raise KeyError('unkown record type {}'.format(
-                        header['recordType']))
+                    header['recordType']))
             records.append(record_type(header, data, byte_order=byte_order))
     finally:
-        _LOG.debug('finished loading {} records from {}'.format(
-                len(records), filename))
+        logger.debug('finished loading {} records from {}'.format(
+            len(records), filename))
         if not hasattr(filename, 'read'):
             f.close()
 
     filesystem = _build_filesystem(records)
 
     return (records, filesystem)
+
 
 def _build_filesystem(records):
     # From PTN003:
@@ -128,7 +116,7 @@ def _build_filesystem(records):
     """Like the Macintosh file system, Igor Pro's data folders use the
     colon character (:) to separate components of a path to an
     object. This is analogous to Unix which uses / and Windows which
-    uses \. (Reminder: Igor's data folders exist wholly in memory
+    uses \\. (Reminder: Igor's data folders exist wholly in memory
     while an experiment is open. It is not a disk file system!)
 
     A data folder named "root" always exists and contains all other
@@ -161,7 +149,7 @@ def _build_filesystem(records):
         elif isinstance(record, (_VariablesRecord, _WaveRecord)):
             if isinstance(record, _VariablesRecord):
                 sys_vars = record.variables['variables']['sysVars'].keys()
-                for filename,value in record.namespace.items():
+                for filename, value in record.namespace.items():
                     if len(dir_stack) > 1 and filename in sys_vars:
                         # From PTN003:
                         """When reading a packed file, any system
@@ -177,18 +165,20 @@ def _build_filesystem(records):
                 cwd[filename] = record
     return filesystem
 
+
 def _check_filename(dir_stack, filename):
     cwd = dir_stack[-1][-1]
     if filename in cwd:
         raise ValueError('collision on name {} in {}'.format(
-                filename, ':'.join(d for d,cwd in dir_stack)))
+            filename, ':'.join(d for d, cwd in dir_stack)))
+
 
 def walk(filesystem, callback, dirpath=None):
     """Walk a packed experiment filesystem, operating on each key,value pair.
     """
     if dirpath is None:
         dirpath = []
-    for key,value in sorted((_bytes(k),v) for k,v in filesystem.items()):
+    for key, value in sorted((_bytes(k), v) for k, v in filesystem.items()):
         callback(dirpath, key, value)
         if isinstance(value, dict):
-            walk(filesystem=value, callback=callback, dirpath=dirpath+[key])
+            walk(filesystem=value, callback=callback, dirpath=dirpath + [key])

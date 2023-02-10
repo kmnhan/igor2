@@ -1,25 +1,8 @@
-# Copyright (C) 2012-2016 W. Trevor King <wking@tremily.us>
-#
-# This file is part of igor.
-#
-# igor is free software: you can redistribute it and/or modify it under the
-# terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
-#
-# igor is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with igor.  If not, see <http://www.gnu.org/licenses/>.
-
-"Common code for scripts distributed with the `igor` package."
-
+"""Common code for scripts distributed with the `igor` package."""
 from __future__ import absolute_import
+
 import argparse as _argparse
-import logging as _logging
+import logging
 import sys as _sys
 
 try:
@@ -28,14 +11,18 @@ try:
 except ImportError as _matplotlib_import_error:
     _matplotlib = None
 
-from . import __version__
-from . import LOG as _LOG
+from ._version import __version__
+
+
+logger = logging.getLogger(__name__)
 
 
 class Script (object):
-    log_levels = [_logging.ERROR, _logging.WARNING, _logging.INFO, _logging.DEBUG]
+    log_levels = [logging.ERROR, logging.WARNING,
+                  logging.INFO, logging.DEBUG]
 
-    def __init__(self, description=None, filetype='IGOR Binary Wave (.ibw) file'):
+    def __init__(self, description=None,
+                 filetype='IGOR Binary Wave (.ibw) file'):
         self.parser = _argparse.ArgumentParser(description=description)
         self.parser.add_argument(
             '--version', action='version',
@@ -61,8 +48,9 @@ class Script (object):
         if args.outfile == '-':
             args.outfile = _sys.stdout
         if args.verbose > 1:
-            log_level = self.log_levels[min(args.verbose-1, len(self.log_levels)-1)]
-            _LOG.setLevel(log_level)
+            log_level = self.log_levels[min(
+                args.verbose - 1, len(self.log_levels) - 1)]
+            logger.setLevel(log_level)
         self._run(args)
         self.display_plots()
 
@@ -82,7 +70,7 @@ class Script (object):
         try:
             axes.plot(wave['wave']['wData'], 'r.')
         except ValueError as error:
-            _LOG.error('error plotting {}: {}'.format(title, error))
+            logger.error('error plotting {}: {}'.format(title, error))
             pass
         self._num_plots += 1
 

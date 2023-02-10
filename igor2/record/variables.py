@@ -1,23 +1,6 @@
-# Copyright (C) 2012 W. Trevor King <wking@tremily.us>
-#
-# This file is part of igor.
-#
-# igor is free software: you can redistribute it and/or modify it under the
-# terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
-#
-# igor is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with igor.  If not, see <http://www.gnu.org/licenses/>.
-
 import io as _io
+import logging
 
-from .. import LOG as _LOG
 from ..binarywave import TYPE_TABLE as _TYPE_TABLE
 from ..binarywave import NullStaticStringField as _NullStaticStringField
 from ..binarywave import DynamicStringField as _DynamicStringField
@@ -30,6 +13,9 @@ from ..util import need_to_reorder_bytes as _need_to_reorder_bytes
 from .base import Record
 
 
+logger = logging.getLogger(__name__)
+
+
 class ListedStaticStringField (_NullStaticStringField):
     """Handle string conversions for multi-count dynamic parents.
 
@@ -40,6 +26,7 @@ class ListedStaticStringField (_NullStaticStringField):
     setting the string data.  The actual string formatting code is not
     affected.
     """
+
     def post_unpack(self, parents, data):
         parent_structure = parents[-1]
         parent_data = self._get_structure_data(parents, data, parent_structure)
@@ -57,6 +44,7 @@ class ListedStaticStringField (_NullStaticStringField):
     setting the string data.  The actual string formatting code is not
     affected.
     """
+
     def post_unpack(self, parents, data):
         parent_structure = parents[-1]
         parent_data = self._get_structure_data(parents, data, parent_structure)
@@ -88,8 +76,8 @@ class DynamicVarDataField (_DynamicField):
         var_data = self._get_structure_data(parents, data, var_structure)
         data = var_data[self.name]
         d = {}
-        for i,value in enumerate(data):
-            key,value = self._normalize_item(i, value)
+        for i, value in enumerate(data):
+            key, value = self._normalize_item(i, value)
             d[key] = value
         var_data[self.name] = d
 
@@ -141,39 +129,53 @@ class DynamicFormulaField (_DynamicStringField):
 VarHeader1 = _Structure(  # `version` field pulled out into VariablesRecord
     name='VarHeader1',
     fields=[
-        _Field('h', 'numSysVars', help='Number of system variables (K0, K1, ...).'),
-        _Field('h', 'numUserVars', help='Number of user numeric variables -- may be zero.'),
-        _Field('h', 'numUserStrs', help='Number of user string variables -- may be zero.'),
-        ])
+        _Field(
+            'h',
+            'numSysVars',
+            help='Number of system variables (K0, K1, ...).'),
+        _Field('h', 'numUserVars',
+               help='Number of user numeric variables -- may be zero.'),
+        _Field('h', 'numUserStrs',
+               help='Number of user string variables -- may be zero.'),
+    ])
 
 # From Variables.h
 VarHeader2 = _Structure(  # `version` field pulled out into VariablesRecord
     name='VarHeader2',
     fields=[
-        _Field('h', 'numSysVars', help='Number of system variables (K0, K1, ...).'),
-        _Field('h', 'numUserVars', help='Number of user numeric variables -- may be zero.'),
-        _Field('h', 'numUserStrs', help='Number of user string variables -- may be zero.'),
-        _Field('h', 'numDependentVars', help='Number of dependent numeric variables -- may be zero.'),
-        _Field('h', 'numDependentStrs', help='Number of dependent string variables -- may be zero.'),
-        ])
+        _Field(
+            'h',
+            'numSysVars',
+            help='Number of system variables (K0, K1, ...).'),
+        _Field('h', 'numUserVars',
+               help='Number of user numeric variables -- may be zero.'),
+        _Field('h', 'numUserStrs',
+               help='Number of user string variables -- may be zero.'),
+        _Field('h', 'numDependentVars',
+               help='Number of dependent numeric variables -- may be zero.'),
+        _Field('h', 'numDependentStrs',
+               help='Number of dependent string variables -- may be zero.'),
+    ])
 
 # From Variables.h
 UserStrVarRec1 = _DynamicStructure(
     name='UserStrVarRec1',
     fields=[
-        ListedStaticStringField('c', 'name', help='Name of the string variable.', count=32),
+        ListedStaticStringField(
+            'c', 'name', help='Name of the string variable.', count=32),
         _Field('h', 'strLen', help='The real size of the following array.'),
         ListedDynamicStrDataField('c', 'data'),
-        ])
+    ])
 
 # From Variables.h
 UserStrVarRec2 = _DynamicStructure(
     name='UserStrVarRec2',
     fields=[
-        ListedStaticStringField('c', 'name', help='Name of the string variable.', count=32),
+        ListedStaticStringField(
+            'c', 'name', help='Name of the string variable.', count=32),
         _Field('l', 'strLen', help='The real size of the following array.'),
         _Field('c', 'data'),
-        ])
+    ])
 
 # From Variables.h
 VarNumRec = _Structure(
@@ -183,27 +185,32 @@ VarNumRec = _Structure(
         _Field('d', 'realPart', help='The real part of the number.'),
         _Field('d', 'imagPart', help='The imag part if the number is complex.'),
         _Field('l', 'reserved', help='Reserved - set to zero.'),
-        ])
+    ])
 
 # From Variables.h
 UserNumVarRec = _DynamicStructure(
     name='UserNumVarRec',
     fields=[
-        ListedStaticStringField('c', 'name', help='Name of the string variable.', count=32),
+        ListedStaticStringField(
+            'c', 'name', help='Name of the string variable.', count=32),
         _Field('h', 'type', help='0 = string, 1 = numeric.'),
-        DynamicVarNumField(VarNumRec, 'num', help='Type and value of the variable if it is numeric.  Not used for string.'),
-        ])
+        DynamicVarNumField(
+            VarNumRec, 'num', help='Type and value of the variable if it is numeric.  Not used for string.'),
+    ])
 
 # From Variables.h
 UserDependentVarRec = _DynamicStructure(
     name='UserDependentVarRec',
     fields=[
-        ListedStaticStringField('c', 'name', help='Name of the string variable.', count=32),
+        ListedStaticStringField(
+            'c', 'name', help='Name of the string variable.', count=32),
         _Field('h', 'type', help='0 = string, 1 = numeric.'),
-        _Field(VarNumRec, 'num', help='Type and value of the variable if it is numeric.  Not used for string.'),
+        _Field(VarNumRec, 'num',
+               help='Type and value of the variable if it is numeric.  Not used for string.'),
         _Field('h', 'formulaLen', help='The length of the dependency formula.'),
-        DynamicFormulaField('c', 'formula', help='Start of the dependency formula. A C string including null terminator.'),
-        ])
+        DynamicFormulaField(
+            'c', 'formula', help='Start of the dependency formula. A C string including null terminator.'),
+    ])
 
 
 class DynamicVarHeaderField (_DynamicField):
@@ -238,23 +245,31 @@ class DynamicVarHeaderField (_DynamicField):
 Variables1 = _DynamicStructure(
     name='Variables1',
     fields=[
-        DynamicVarHeaderField(VarHeader1, 'var_header', help='Variables header'),
+        DynamicVarHeaderField(VarHeader1, 'var_header',
+                              help='Variables header'),
         DynamicSysVarField('f', 'sysVars', help='System variables', count=0),
-        DynamicUserVarField(UserNumVarRec, 'userVars', help='User numeric variables', count=0),
-        DynamicUserStrField(UserStrVarRec1, 'userStrs', help='User string variables', count=0),
-        ])
+        DynamicUserVarField(UserNumVarRec, 'userVars',
+                            help='User numeric variables', count=0),
+        DynamicUserStrField(UserStrVarRec1, 'userStrs',
+                            help='User string variables', count=0),
+    ])
 
 
 Variables2 = _DynamicStructure(
     name='Variables2',
     fields=[
-        DynamicVarHeaderField(VarHeader2, 'var_header', help='Variables header'),
+        DynamicVarHeaderField(VarHeader2, 'var_header',
+                              help='Variables header'),
         DynamicSysVarField('f', 'sysVars', help='System variables', count=0),
-        DynamicUserVarField(UserNumVarRec, 'userVars', help='User numeric variables', count=0),
-        DynamicUserStrField(UserStrVarRec2, 'userStrs', help='User string variables', count=0),
-        _Field(UserDependentVarRec, 'dependentVars', help='Dependent numeric variables.', count=0, array=True),
-        _Field(UserDependentVarRec, 'dependentStrs', help='Dependent string variables.', count=0, array=True),
-        ])
+        DynamicUserVarField(UserNumVarRec, 'userVars',
+                            help='User numeric variables', count=0),
+        DynamicUserStrField(UserStrVarRec2, 'userStrs',
+                            help='User string variables', count=0),
+        _Field(UserDependentVarRec, 'dependentVars',
+               help='Dependent numeric variables.', count=0, array=True),
+        _Field(UserDependentVarRec, 'dependentStrs',
+               help='Dependent string variables.', count=0, array=True),
+    ])
 
 
 class DynamicVersionField (_DynamicField):
@@ -269,7 +284,7 @@ class DynamicVersionField (_DynamicField):
         if variables_structure.byte_order in '@=':
             need_to_reorder_bytes = _need_to_reorder_bytes(version)
             variables_structure.byte_order = _byte_order(need_to_reorder_bytes)
-            _LOG.debug(
+            logger.debug(
                 'get byte order from version: {} (reorder? {})'.format(
                     variables_structure.byte_order, need_to_reorder_bytes))
         else:
@@ -285,8 +300,8 @@ class DynamicVersionField (_DynamicField):
                 'invalid variables record version: {}'.format(version))
 
         if variables_structure.fields[-1].format != old_format:
-            _LOG.debug('change variables record from {} to {}'.format(
-                    old_format, variables_structure.fields[-1].format))
+            logger.debug('change variables record from {} to {}'.format(
+                old_format, variables_structure.fields[-1].format))
             variables_structure.setup()
         elif need_to_reorder_bytes:
             variables_structure.setup()
@@ -298,9 +313,13 @@ class DynamicVersionField (_DynamicField):
 VariablesRecordStructure = _DynamicStructure(
     name='VariablesRecord',
     fields=[
-        DynamicVersionField('h', 'version', help='Version number for this header.'),
-        _Field(Variables1, 'variables', help='The rest of the variables data.'),
-        ])
+        DynamicVersionField(
+            'h', 'version', help='Version number for this header.'),
+        _Field(
+            Variables1,
+            'variables',
+            help='The rest of the variables data.'),
+    ])
 
 
 class VariablesRecord (Record):
@@ -312,8 +331,8 @@ class VariablesRecord (Record):
         stream = _io.BytesIO(bytes(self.data))
         self.variables = VariablesRecordStructure.unpack_stream(stream)
         self.namespace = {}
-        for key,value in self.variables['variables'].items():
+        for key, value in self.variables['variables'].items():
             if key not in ['var_header']:
-                _LOG.debug('update namespace {} with {} for {}'.format(
-                        self.namespace, value, key))
+                logger.debug('update namespace {} with {} for {}'.format(
+                    self.namespace, value, key))
                 self.namespace.update(value)
