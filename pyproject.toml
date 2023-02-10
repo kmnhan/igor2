@@ -12,7 +12,7 @@ authors = [
     {name = "Paul Müller"},
 ]
 description = "interface for reading binary IGOR files"
-readme = "README.rst"
+readme = "Readme.rst"
 requires-python = ">=3.8, <4"
 classifiers = [
     'Intended Audience :: Developers',
