@@ -90,7 +90,11 @@ def load(filename, strict=True, ignore_unknown=True):
                                ] and not ignore_unknown:
                 raise KeyError('unkown record type {}'.format(
                     header['recordType']))
-            records.append(record_type(header, data, byte_order=byte_order))
+            try:
+                records.append(record_type(header, data, byte_order=byte_order))
+            except TypeError as e:
+                if b'ImageTool' not in data:
+                    raise e
     finally:
         logger.debug('finished loading {} records from {}'.format(
             len(records), filename))
