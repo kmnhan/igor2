@@ -8,3 +8,4 @@ igor.egg-info/
 igor2/_version.py
 
 *.egg-info
+.env
