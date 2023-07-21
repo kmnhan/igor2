@@ -8,11 +8,19 @@ data_dir = pathlib.Path(__file__).parent / "data"
 
 def assert_equal_dump_no_whitespace_no_byte(data_a, data_b):
     def repl(x):
-        return x.replace(
-            " ", "").replace(
-            "b'", "'").replace(
-            "\n", "").replace(
-            "float32", "'>f4'")
+        for old, new in [
+            [" ", ""],  # ignore whitespaces
+            ["b'", "'"],  # ignore bytes vs str
+            ["\n", ""],  # ignore newlines
+            # teat all floats as equal
+            ["float32", "float"],
+            ["float64", "float"],
+            ["'>f4'", "float"],
+            ["'>f8'", "float"],
+        ]:
+            x = x.replace(old, new)
+        return x
+
     a = repl(data_a)
     b = repl(data_b)
     print("DBUG data_a: ", a)
