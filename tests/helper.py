@@ -13,8 +13,11 @@ def assert_equal_dump_no_whitespace_no_byte(data_a, data_b):
             "b'", "'").replace(
             "\n", "").replace(
             "float32", "'>f4'")
-
-    assert repl(data_a) == repl(data_b)
+    a = repl(data_a)
+    b = repl(data_b)
+    print("DBUG data_a: ", a)
+    print("DBUG data_b: ", b)
+    assert a == b
 
 
 def dumpibw(filename):
