@@ -11,7 +11,7 @@ def test_ibw01():
                                      'wfmSize': 166},
                       'note': '',
                       'padding': array([], dtype=float64),
-                      'wData': array([ 5.,  4.,  3.,  2.,  1.]),
+                      'wData': array([ 5.,  4.,  3.,  2.,  1.], dtype=float32),
                       'wave_header': {'aModified': 0,
                                       'bname': 'double',
                                       'botFullScale': 0.0,
