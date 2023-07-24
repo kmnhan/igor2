@@ -23,7 +23,7 @@ classifiers = [
 ]
 license = {text = "GNU Lesser General Public License v3 or later (LGPLv3+)"}
 dependencies = [
-    "numpy",
+    "numpy>=1.25.1",
 ]
 dynamic = ["version"]
 
