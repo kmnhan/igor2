@@ -14,6 +14,7 @@ The usual igor folder types are given in the technical reports
 PTN003.ifn and TN003.ifn.
 """
 from __future__ import absolute_import
+import warnings
 import io as _io
 import locale as _locale
 import re as _re
@@ -34,6 +35,9 @@ from .record.procedure import ProcedureRecord as _ProcedureRecord
 from .record.wave import WaveRecord as _WaveRecord
 from .record.variables import VariablesRecord as _VariablesRecord
 
+warnings.warn(
+    'The igorpy compatibility layer is deprecated', DeprecationWarning, stacklevel=2
+)
 
 __version__='0.10'
 
