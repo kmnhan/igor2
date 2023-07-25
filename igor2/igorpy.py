@@ -87,11 +87,14 @@ class Wave(IgorObject):
     def __init__(self, record):
         d = record.wave['wave']
         self.name = d['wave_header']['bname'].decode(ENCODING)
+        if self.name == "e name too long:":
+            self.name = "data"
         self.data = d['wData']
         self.fs = d['wave_header']['fsValid']
         self.fstop = d['wave_header']['topFullScale']
         self.fsbottom = d['wave_header']['botFullScale']
-        if record.wave['version'] in [1,2,3]:
+        version = record.wave['version']
+        if version in [1,2,3]:
             dims = [d['wave_header']['npnts']] + [0]*(_MAXDIMS-1)
             sfA = [d['wave_header']['hsA']] + [0]*(_MAXDIMS-1)
             sfB = [d['wave_header']['hsB']] + [0]*(_MAXDIMS-1)
@@ -102,13 +105,19 @@ class Wave(IgorObject):
             sfA = d['wave_header']['sfA']
             sfB = d['wave_header']['sfB']
             # TODO find example with multiple data units
-            self.data_units = [d['data_units'].decode(ENCODING)]
-            self.axis_units = [d['dimension_units'].decode(ENCODING)]
+            if version == 5:
+                self.data_units = [d['data_units'].decode(ENCODING)]
+                self.axis_units = [b''.join(d).decode(ENCODING)
+                                   for d in d['wave_header']['dimUnits']]
+            else:
+                self.data_units = [d['data_units'].decode(ENCODING)]
+                self.axis_units = [d['dimension_units'].decode(ENCODING)]
+
         self.data_units.extend(['']*(_MAXDIMS-len(self.data_units)))
         self.data_units = tuple(self.data_units)
         self.axis_units.extend(['']*(_MAXDIMS-len(self.axis_units)))
         self.axis_units = tuple(self.axis_units)
-        self.axis = [_numpy.linspace(a,b,c) for a,b,c in zip(sfA, sfB, dims)]
+        self.axis = [_numpy.linspace(b,b + a * (c - 1),c) for a,b,c in zip(sfA, sfB, dims)]
         self.formula = d.get('formula', '')
         self.notes = d.get('note', '')
     def format(self, indent=0):
@@ -223,7 +232,8 @@ def loads(s, **kwargs):
 def load(filename, **kwargs):
     """Load an igor file"""
     try:
-        packed_experiment = _load(filename)
+        packed_experiment = _load(
+            filename, initial_byte_order=kwargs.pop('initial_byte_order', '='))
     except ValueError as e:
         if e.args[0].startswith('not enough data for the next record header'):
             raise IOError('invalid record header; bad pxp file?')
