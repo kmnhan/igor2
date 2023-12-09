@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (C) 2012 W. Trevor King <wking@tremily.us>
 #
 # This file is part of igor.
@@ -16,27 +14,26 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with igor.  If not, see <http://www.gnu.org/licenses/>.
-
 "PXP -> ASCII conversion"
 
 import pprint
 
-from igor.packed import load, walk
-from igor.record.wave import WaveRecord
+from igor2.packed import load, walk
+from igor2.record.wave import WaveRecord
 from igor.script import Script
 
 
-class PackedScript (Script):
+class PackedScript(Script):
     def _run(self, args):
         self.args = args
         records, filesystem = load(args.infile)
-        if hasattr(args.outfile, 'write'):
+        if hasattr(args.outfile, "write"):
             f = args.outfile  # filename is actually a stream object
         else:
-            f = open(args.outfile, 'w')
+            f = open(args.outfile, "w")
         try:
             f.write(pprint.pformat(records))
-            f.write('\n')
+            f.write("\n")
         finally:
             if f != args.outfile:
                 f.close()
@@ -49,6 +46,10 @@ class PackedScript (Script):
             self.plot_wave(self.args, value.wave, title=dirpath + [key])
 
 
-s = PackedScript(
-    description=__doc__, filetype='IGOR Packed Experiment (.pxp) file')
-s.run()
+def main():
+    s = PackedScript(description=__doc__, filetype="IGOR Packed Experiment (.pxp) file")
+    s.run()
+
+
+if __name__ == "__main__":
+    main()

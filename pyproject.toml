@@ -23,18 +23,20 @@ classifiers = [
 ]
 license = {text = "GNU Lesser General Public License v3 or later (LGPLv3+)"}
 dependencies = [
-    "numpy>=1.25.1",
+  "igor",
+  "numpy>=1.25.1",
+  "matplotlib",
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-CLI = [
-    "matplotlib",
-    ]
+dev = [
+  "pytest",
+]
 
 [project.scripts]
-igorbinarywave = 'igor2.cli:igorbinarywave'
-igorpackedexperiment = 'igor2.cli:igorpackedexperiment'
+igorbinarywave = 'igor2.cli.igorbinarywave:main'
+igorpackedexperiment = 'igor2.cli.igorpackedexperiment:main'
 
 [tool.setuptools]
 packages = ["igor2"]
