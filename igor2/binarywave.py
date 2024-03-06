@@ -9,12 +9,12 @@ import logging
 #   valuable information while you are developing IGOR applications.
 import numpy as _numpy
 
-from .struct import Structure as _Structure
-from .struct import DynamicStructure as _DynamicStructure
-from .struct import Field as _Field
-from .struct import DynamicField as _DynamicField
-from .util import byte_order as _byte_order
-from .util import need_to_reorder_bytes as _need_to_reorder_bytes
+from igor2.struct import Structure as _Structure
+from igor2.struct import DynamicStructure as _DynamicStructure
+from igor2.struct import Field as _Field
+from igor2.struct import DynamicField as _DynamicField
+from igor2.util import byte_order as _byte_order
+from igor2.util import need_to_reorder_bytes as _need_to_reorder_bytes
 
 
 logger = logging.getLogger(__name__)
