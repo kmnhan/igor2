@@ -1,18 +1,18 @@
 """Read IGOR Packed Experiment files into records."""
 import logging
 
-from .struct import Structure as _Structure
-from .struct import Field as _Field
-from .util import byte_order as _byte_order
-from .util import need_to_reorder_bytes as _need_to_reorder_bytes
-from .util import _bytes
-from .record import RECORD_TYPE as _RECORD_TYPE
-from .record.base import UnknownRecord as _UnknownRecord
-from .record.base import UnusedRecord as _UnusedRecord
-from .record.folder import FolderStartRecord as _FolderStartRecord
-from .record.folder import FolderEndRecord as _FolderEndRecord
-from .record.variables import VariablesRecord as _VariablesRecord
-from .record.wave import WaveRecord as _WaveRecord
+from igor2.struct import Structure as _Structure
+from igor2.struct import Field as _Field
+from igor2.util import byte_order as _byte_order
+from igor2.util import need_to_reorder_bytes as _need_to_reorder_bytes
+from igor2.util import _bytes
+from igor2.record import RECORD_TYPE as _RECORD_TYPE
+from igor2.record.base import UnknownRecord as _UnknownRecord
+from igor2.record.base import UnusedRecord as _UnusedRecord
+from igor2.record.folder import FolderStartRecord as _FolderStartRecord
+from igor2.record.folder import FolderEndRecord as _FolderEndRecord
+from igor2.record.variables import VariablesRecord as _VariablesRecord
+from igor2.record.wave import WaveRecord as _WaveRecord
 
 
 logger = logging.getLogger(__name__)
