@@ -22,18 +22,18 @@ import sys as _sys
 
 import numpy as _numpy
 
-from .binarywave import MAXDIMS as _MAXDIMS
-from .packed import load as _load
-from .record.base import UnknownRecord as _UnknownRecord
-from .record.folder import FolderStartRecord as _FolderStartRecord
-from .record.folder import FolderEndRecord as _FolderEndRecord
-from .record.history import HistoryRecord as _HistoryRecord
-from .record.history import GetHistoryRecord as _GetHistoryRecord
-from .record.history import RecreationRecord as _RecreationRecord
-from .record.packedfile import PackedFileRecord as _PackedFileRecord
-from .record.procedure import ProcedureRecord as _ProcedureRecord
-from .record.wave import WaveRecord as _WaveRecord
-from .record.variables import VariablesRecord as _VariablesRecord
+from igor2.binarywave import MAXDIMS as _MAXDIMS
+from igor2.packed import load as _load
+from igor2.record.base import UnknownRecord as _UnknownRecord
+from igor2.record.folder import FolderStartRecord as _FolderStartRecord
+from igor2.record.folder import FolderEndRecord as _FolderEndRecord
+from igor2.record.history import HistoryRecord as _HistoryRecord
+from igor2.record.history import GetHistoryRecord as _GetHistoryRecord
+from igor2.record.history import RecreationRecord as _RecreationRecord
+from igor2.record.packedfile import PackedFileRecord as _PackedFileRecord
+from igor2.record.procedure import ProcedureRecord as _ProcedureRecord
+from igor2.record.wave import WaveRecord as _WaveRecord
+from igor2.record.variables import VariablesRecord as _VariablesRecord
 
 warnings.warn(
     'The igorpy compatibility layer is deprecated', DeprecationWarning, stacklevel=2
