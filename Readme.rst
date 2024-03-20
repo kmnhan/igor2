@@ -4,12 +4,12 @@ Igor2
 |PyPI Version| |Build Status| |Coverage Status|
 
 
-Python parser for Igor Binary Waves (.ibw) and Packed Experiment
-(.pxp) files written by WaveMetrics' IGOR Pro software.
+Python parser for Igor Binary Waves (``.ibw``) and Packed Experiment
+(``.pxp``) files written by WaveMetrics' IGOR Pro software.
 
-Igor2 is the continuation of the inactive igor project, forked
-from W. Trevor King and originally written by Paul Kienzle (see
-git history).
+Igor2 is the continuation of the inactive
+`igor <https://github.com/wking/igor>`_ project.
+
 
 Installation
 ------------
@@ -17,19 +17,12 @@ You can install igor2 via pip::
 
     pip install igor2
 
-The commands ``igorbinarywave`` and ``igorpackedexperiment`` are currently
-not properly implemented (see https://github.com/AFM-analysis/igor2/issues/6),
-but it should be straight-forward to fix this.
-
-To install igor2 with the command-line interface (CLI), run::
-
-    pip install igor2[CLI]
-
 
 Usage
 -----
 This package is a direct replacement of `igor`. Your scripts should work
 without any issues if you replace::
+
 
     import igor
 
@@ -42,7 +35,7 @@ See the docstrings and unit tests for examples using the Python API.
 
 CLI
 ---
-The package also installs to scripts, ``igorbinarywave`` and
+The package also installs two scripts, ``igorbinarywave`` and
 ``igorpackedexperiment`` which can be used to dump files to stdout.
 For details on their usage, use the ``--help`` option.  For example::
 
@@ -52,14 +45,14 @@ For details on their usage, use the ``--help`` option.  For example::
 Testing
 -------
 
-Run internal unit tests with pytest::
+Run internal unit tests by cloning the repository and installing the
+test requirements ``pytest`` and then running the tests::
 
-    pip install -r tests/requirements.txt
-    pytest tests
+    git clone https://github.com/AFM-analysis/igor2.git
+    cd igor2
+    pip install -e .[dev]
+    pytest
 
-The data in the ``test/data`` directory is in the Git repository, but
-it is not bundled with the source code.  If you want the test data,
-you'll have to clone the Git repository or download a snapshot.
 
 Licence
 -------

@@ -9,3 +9,7 @@ igor2/_version.py
 
 *.egg-info
 .env
+
+# Emacs
+*~
+\#*
