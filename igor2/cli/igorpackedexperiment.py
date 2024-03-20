@@ -14,13 +14,14 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with igor.  If not, see <http://www.gnu.org/licenses/>.
-"PXP -> ASCII conversion"
+"""PXP -> ASCII conversion"""
 
 import pprint
 
-from igor2.packed import load, walk
-from igor2.record.wave import WaveRecord
-from igor.script import Script
+from ..packed import load, walk
+from ..record.wave import WaveRecord
+
+from .script import Script
 
 
 class PackedScript(Script):
@@ -47,7 +48,8 @@ class PackedScript(Script):
 
 
 def main():
-    s = PackedScript(description=__doc__, filetype="IGOR Packed Experiment (.pxp) file")
+    s = PackedScript(description=__doc__,
+                     filetype="IGOR Packed Experiment (.pxp) file")
     s.run()
 
 

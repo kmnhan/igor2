@@ -23,7 +23,6 @@ classifiers = [
 ]
 license = {text = "GNU Lesser General Public License v3 or later (LGPLv3+)"}
 dependencies = [
-  "igor",
   "numpy>=1.25.1",
   "matplotlib",
 ]
