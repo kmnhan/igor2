@@ -1,6 +1,6 @@
 """Test the CLI entry points."""
-from igor2.cli.igorbinarywave import WaveScript
-from igor2.cli.igorpackedexperiment import PackedScript
+# from igor2.cli.igorbinarywave import WaveScript
+# from igor2.cli.igorpackedexperiment import PackedScript
 
 
 def test_wavescript(capsys):
