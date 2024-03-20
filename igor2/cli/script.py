@@ -4,9 +4,14 @@ from __future__ import absolute_import
 import argparse as _argparse
 import logging
 import sys as _sys
+import warnings
 
-import matplotlib.pyplot as pyplot
-
+try:
+    import matplotlib.pyplot as pyplot
+except (ImportError, ModuleNotFoundError):
+    warnings.warn("Please install `matplotlib` to get the full CLI"
+                  "functionality.")
+    pyplot = None
 
 from .._version import __version__
 
@@ -55,6 +60,8 @@ class Script (object):
         raise NotImplementedError()
 
     def plot_wave(self, args, wave, title=None):
+        if pyplot is None:
+            raise ValueError("Please install `matplotlib` for plotting.")
         if not args.plot:
             return  # no-op
         if title is None:
@@ -70,5 +77,7 @@ class Script (object):
         self._num_plots += 1
 
     def display_plots(self):
+        if pyplot is None:
+            raise ValueError("Please install `matplotlib` for plotting.")
         if self._num_plots:
             pyplot.show()

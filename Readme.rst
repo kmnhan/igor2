@@ -35,8 +35,12 @@ See the docstrings and unit tests for examples using the Python API.
 
 CLI
 ---
-The package also installs two scripts, ``igorbinarywave`` and
-``igorpackedexperiment`` which can be used to dump files to stdout.
+The package also installs two command-line-interface (CLI) scripts,
+``igorbinarywave`` and ``igorpackedexperiment`` which can be used to dump files
+to stdout. You should install the ``[CLI]`` extra for them to fully work::
+
+    pip install igor2[CLI]
+
 For details on their usage, use the ``--help`` option.  For example::
 
     igorbinarywave --help
@@ -46,7 +50,7 @@ Testing
 -------
 
 Run internal unit tests by cloning the repository and installing the
-test requirements ``pytest`` and then running the tests::
+``[dev]`` extra and then running the tests::
 
     git clone https://github.com/AFM-analysis/igor2.git
     cd igor2
@@ -60,22 +64,6 @@ Licence
 This project is distributed under the `GNU Lesser General Public
 License Version 3`_ or greater, see the ``LICENSE`` file distributed
 with the project for details.
-
-
-.. _layman: http://layman.sourceforge.net/
-.. _wtk overlay: http://blog.tremily.us/posts/Gentoo_overlay/
-.. _Debian: http://www.debian.org/
-.. _Gentoo: http://www.gentoo.org/
-.. _NumPy: http://numpy.scipy.org/
-.. _Matplotlib: http://matplotlib.sourceforge.net/
-.. _Nose: http://somethingaboutorange.com/mrl/projects/nose/
-.. _Git: http://git-scm.com/
-.. _homepage: http://blog.tremily.us/posts/igor/
-.. _pip: http://pypi.python.org/pypi/pip
-.. _igor.py: http://pypi.python.org/pypi/igor.py
-.. _GNU Lesser General Public License Version 3:
-    http://www.gnu.org/licenses/lgpl.txt
-.. _update-copyright: http://blog.tremily.us/posts/update-copyright/
 
 
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/igor2.svg

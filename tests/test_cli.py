@@ -7,5 +7,5 @@ def test_wavescript(capsys):
     """Test the WaveScript class entry point."""
 
 
-def test_wavescript(capsys):
+def test_packetscript(capsys):
     """Test the PackedScript class entry point."""
