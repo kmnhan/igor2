@@ -66,6 +66,10 @@ License Version 3`_ or greater, see the ``LICENSE`` file distributed
 with the project for details.
 
 
+.. _GNU Lesser General Public License Version 3:
+    http://www.gnu.org/licenses/lgpl.txt
+
+
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/igor2.svg
    :target: https://pypi.python.org/pypi/igor2
 .. |Build Status| image:: https://img.shields.io/github/actions/workflow/status/AFM-analysis/igor2/check.yml?branch=master
