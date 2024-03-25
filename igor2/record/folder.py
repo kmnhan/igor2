@@ -1,4 +1,4 @@
-from igor2.record.base import TextRecord
+from .base import TextRecord
 
 
 class FolderStartRecord (TextRecord):

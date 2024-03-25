@@ -1,7 +1,7 @@
 from io import BytesIO as _BytesIO
 
-from igor2.binarywave import load as _loadibw
-from igor2.record import Record
+from ..binarywave import load as _loadibw
+from . import Record
 
 
 class WaveRecord (Record):

@@ -1,12 +1,12 @@
 # flake8: noqa: F401
 """Record parsers for IGOR's packed experiment files."""
-from igor2.record.base import Record, UnknownRecord, UnusedRecord
-from igor2.record.variables import VariablesRecord
-from igor2.record.history import HistoryRecord, RecreationRecord, GetHistoryRecord
-from igor2.record.wave import WaveRecord
-from igor2.record.procedure import ProcedureRecord
-from igor2.record.packedfile import PackedFileRecord
-from igor2.record.folder import FolderStartRecord, FolderEndRecord
+from .base import Record, UnknownRecord, UnusedRecord
+from .variables import VariablesRecord
+from .history import HistoryRecord, RecreationRecord, GetHistoryRecord
+from .wave import WaveRecord
+from .procedure import ProcedureRecord
+from .packedfile import PackedFileRecord
+from .folder import FolderStartRecord, FolderEndRecord
 
 
 # From PackedFile.h
