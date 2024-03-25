@@ -1,3 +1,8 @@
+0.5.5
+ - docs: fix readme
+0.5.4
+ - fix: entrypoints not working (#6, #10)
+ - enh: make matplotlib optional for CLI
 0.5.3
  - setup: bump numpy to 1.25.1
  - tests: workaround for broken numpy repr
