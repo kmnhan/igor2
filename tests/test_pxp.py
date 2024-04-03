@@ -129,3 +129,26 @@ def test_pxp():
         28.72983551, 28.05199242, 29.29024887, 31.3501091,
         32.7331543, 32.87995529, 32.28799438, 31.99738503],
         dtype=np.float32))
+
+
+def test_pxt():
+    data = loadpxp(data_dir / 'packed-byteorder.pxt', initial_byte_order='>')
+    records = data[0]
+    assert len(records) == 2
+    assert records[0].variables == {'version': 2,
+                                    'variables': {
+                                        'var_header': {'numSysVars': 0,
+                                                       'numUserVars': 0,
+                                                       'numUserStrs': 0,
+                                                       'numDependentVars': 0,
+                                                       'numDependentStrs': 0},
+                                        'sysVars': {},
+                                        'userVars': {},
+                                        'userStrs': {},
+                                        'dependentVars': [],
+                                        'dependentStrs': []}}
+    assert np.allclose(records[1].wave['wave']["wData"][:30, 0], np.array(
+        [14603., 13701., 14907., 13795., 14339., 14942., 14984., 14261.,
+         12647., 14242., 14470., 13913., 14158., 14754., 14462., 14346.,
+         14219., 13467., 13595., 14331., 13960., 12934., 12897., 13557.,
+         13105., 12797., 13234., 13053., 13455., 12825.], dtype='>f8'))
