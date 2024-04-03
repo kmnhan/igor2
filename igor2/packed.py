@@ -43,7 +43,29 @@ SUPERCEDED_MASK = 0x8000  # Bit is set if the record is superceded by
 # a later record in the packed file.
 
 
-def load(filename, strict=True, ignore_unknown=True):
+def load(filename, strict=True, ignore_unknown=True, initial_byte_order=None):
+    """Load a packed experiment file.
+
+    Parameters
+    ----------
+    filename : str or file-like object
+        The path to the file or a file-like object representing the packed
+        experiment file.
+    strict : bool, optional
+        This parameter is ignored. Defaults to True.
+    ignore_unknown : bool, optional
+        If True, ignore unknown record types. Defaults to True.
+    initial_byte_order : str or None, optional
+        The initial byte order to use for unpacking. Must be one of '>', '=',
+        '<'. If None, '=' is used. Defaults to None.
+
+    Returns
+    -------
+    records : list of Record
+        The records in the packed experiment file.
+    filesystem : dict
+        The filesystem structure of the packed experiment file.
+    """
     logger.debug('loading a packed experiment file from {}'.format(filename))
     records = []
     if hasattr(filename, 'read'):
@@ -51,7 +73,8 @@ def load(filename, strict=True, ignore_unknown=True):
     else:
         f = open(filename, 'rb')
     byte_order = None
-    initial_byte_order = '='
+    if initial_byte_order is None:
+        initial_byte_order = '='
     try:
         while True:
             PackedFileRecordHeader.byte_order = initial_byte_order
@@ -80,7 +103,8 @@ def load(filename, strict=True, ignore_unknown=True):
             data = bytes(f.read(header['numDataBytes']))
             if len(data) < header['numDataBytes']:
                 raise ValueError(
-                    ('not enough data for the next record ({} < {})'
+                    ('not enough data for the next record ({} < {}), '
+                     'try loading with a different initial byte order'
                      ).format(len(b), header['numDataBytes']))
             record_type = _RECORD_TYPE.get(
                 header['recordType'] & PACKEDRECTYPE_MASK, _UnknownRecord)
