@@ -30,7 +30,7 @@ jobs:
         python -m pip install --upgrade pip wheel
         python -m pip install coverage flake8 pytest
         # install dependencies
-        pip install -e .[dev]
+        pip install .[dev]
         # show installed packages
         pip freeze
     - name: install oldest supported numpy for Python 3.6
