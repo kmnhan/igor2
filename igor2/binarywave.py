@@ -790,7 +790,8 @@ Wave5 = _DynamicStructure(
         DynamicStringIndicesDataField(
           'P', 'sIndices',
           help='Dynamic string indices for text waves.',
-          count=0, array=True),])
+          count=0, array=True),
+        ])
 
 Wave = _DynamicStructure(
     name='Wave',
