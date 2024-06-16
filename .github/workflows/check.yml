@@ -12,6 +12,7 @@ jobs:
       matrix:
         python-version: ['3.6', '3.11']
         os: [macos-latest, ubuntu-latest, windows-latest]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v3
@@ -29,7 +30,7 @@ jobs:
         # show installed packages
         pip freeze
     - name: install oldest supported numpy for Python 3.6
-      if matrix.python-version == '3.6'
+      if: matrix.python-version == '3.6'
       run: |
         python -m pip install numpy==1.19.2
     - name: Test with pytest
