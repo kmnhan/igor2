@@ -1,0 +1,4 @@
+[flake8]
+per-file-ignores =
+    # line too long
+    tests/test_ibw.py: E501,
