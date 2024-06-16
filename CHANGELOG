@@ -1,3 +1,5 @@
+0.5.7
+ - support older Python and NumPy version (#16)
 0.5.6
  - enh: allow specifying the byte order when loading data
 0.5.5

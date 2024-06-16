@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.6', '3.11']
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
@@ -28,6 +28,10 @@ jobs:
         pip install -e .[dev]
         # show installed packages
         pip freeze
+    - name: install oldest supported numpy for Python 3.6
+      if matrix.python-version == '3.6'
+      run: |
+        python -m pip install numpy==1.19.2
     - name: Test with pytest
       run: |
         coverage run --source=igor2 -m pytest tests
