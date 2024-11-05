@@ -8,7 +8,6 @@ with each field in a hierarchy of Python dictionaries.
 from __future__ import absolute_import
 import io as _io
 import logging
-import pprint as _pprint
 import struct as _struct
 
 import numpy as _numpy
@@ -720,7 +719,7 @@ class DynamicStructure (Structure):
         if data is None:
             parents = [self]
             data = d = {}
-            if logger.level <= logging.DEBUG:
+            if logger.isEnabledFor(logging.DEBUG):
                 stream = DebuggingStream(stream)
         else:
             parents = parents + [self]
@@ -728,7 +727,8 @@ class DynamicStructure (Structure):
         for f in self.fields:
             logger.debug('parsing {!r}.{} (count={}, item_count={})'.format(
                 self, f, f.count, f.item_count))
-            if logger.level <= logging.DEBUG:
+            if logger.isEnabledFor(logging.DEBUG):
+                import pprint as _pprint
                 logger.debug('data:\n{}'.format(_pprint.pformat(data)))
             if hasattr(f, 'pre_unpack'):
                 logger.debug('pre-unpack {}'.format(f))
