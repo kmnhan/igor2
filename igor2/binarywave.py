@@ -758,40 +758,40 @@ Wave5 = _DynamicStructure(
     name='Wave5',
     fields=[
         _Field(
-          BinHeader5, 'bin_header',
-          help='Binary wave header'),
+            BinHeader5, 'bin_header',
+            help='Binary wave header'),
         _Field(
-          WaveHeader5, 'wave_header',
-          help='Wave header'),
+            WaveHeader5, 'wave_header',
+            help='Wave header'),
         DynamicWaveDataField5(
-          'f', 'wData',
-          help='The start of the array of waveform data.',
-          count=0, array=True),
+            'f', 'wData',
+            help='The start of the array of waveform data.',
+            count=0, array=True),
         DynamicDependencyFormulaField(
-          'c', 'formula',
-          help='Optional wave dependency formula.',
-          count=0, array=True),
+            'c', 'formula',
+            help='Optional wave dependency formula.',
+            count=0, array=True),
         DynamicWaveNoteField(
-          'c', 'note',
-          help='Optional wave note data.', count=0,
-          array=True),
+            'c', 'note',
+            help='Optional wave note data.', count=0,
+            array=True),
         DynamicDataUnitsField(
-          'c', 'data_units',
-          help='Optional extended data units data.',
-          count=0, array=True),
+            'c', 'data_units',
+            help='Optional extended data units data.',
+            count=0, array=True),
         DynamicDimensionUnitsField(
-          'c', 'dimension_units',
-          help='Optional dimension label data',
-          count=0, array=True),
+            'c', 'dimension_units',
+            help='Optional dimension label data',
+            count=0, array=True),
         DynamicLabelsField(
-          'c', 'labels',
-          help="Optional dimension label data",
-          count=0, array=True),
+            'c', 'labels',
+            help="Optional dimension label data",
+            count=0, array=True),
         DynamicStringIndicesDataField(
-          'P', 'sIndices',
-          help='Dynamic string indices for text waves.',
-          count=0, array=True),
-        ])
+            'P', 'sIndices',
+            help='Dynamic string indices for text waves.',
+            count=0, array=True),
+    ])
 
 Wave = _DynamicStructure(
     name='Wave',
