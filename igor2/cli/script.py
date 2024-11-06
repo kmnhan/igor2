@@ -72,7 +72,7 @@ class Script (object):
         try:
             axes.plot(wave['wave']['wData'], 'r.')
         except ValueError as error:
-            logger.error('error plotting {}: {}'.format(title, error))
+            logger.error('error plotting %s: %s', title, error)
             pass
         self._num_plots += 1
 

@@ -419,8 +419,8 @@ class DynamicWaveDataField1 (_DynamicField):
             )
         except BaseException:
             logger.error(
-                'could not reshape data from {} to {}'.format(
-                    self.shape, data_b))
+                'could not reshape data from %s to %s',
+                self.shape, data_b)
             raise
         return data
 
@@ -602,8 +602,8 @@ class DynamicStringIndicesDataField (_DynamicField):
             wdata = wdata.reshape(shape)
         except ValueError:
             logger.error(
-                'could not reshape strings from {} to {}'.format(
-                    shape, wdata.shape))
+                'could not reshape strings from %s to %s',
+                shape, wdata.shape)
             raise
         wave_data['wData'] = wdata
 
@@ -620,8 +620,8 @@ class DynamicVersionField (_DynamicField):
             need_to_reorder_bytes = _need_to_reorder_bytes(version)
             wave_structure.byte_order = _byte_order(need_to_reorder_bytes)
             logger.debug(
-                'get byte order from version: {} (reorder? {})'.format(
-                    wave_structure.byte_order, need_to_reorder_bytes))
+                'get byte order from version: %s (reorder? %s)',
+                wave_structure.byte_order, need_to_reorder_bytes)
         else:
             need_to_reorder_bytes = False
 
@@ -639,8 +639,8 @@ class DynamicVersionField (_DynamicField):
                 'invalid binary wave version: {}'.format(version))
 
         if wave_structure.fields[-1].format != old_format:
-            logger.debug('change wave headers from {} to {}'.format(
-                old_format, wave_structure.fields[-1].format))
+            logger.debug('change wave headers from %s to %s',
+                         old_format, wave_structure.fields[-1].format)
             wave_structure.setup()
         elif need_to_reorder_bytes:
             wave_structure.setup()
@@ -758,40 +758,40 @@ Wave5 = _DynamicStructure(
     name='Wave5',
     fields=[
         _Field(
-          BinHeader5, 'bin_header',
-          help='Binary wave header'),
+            BinHeader5, 'bin_header',
+            help='Binary wave header'),
         _Field(
-          WaveHeader5, 'wave_header',
-          help='Wave header'),
+            WaveHeader5, 'wave_header',
+            help='Wave header'),
         DynamicWaveDataField5(
-          'f', 'wData',
-          help='The start of the array of waveform data.',
-          count=0, array=True),
+            'f', 'wData',
+            help='The start of the array of waveform data.',
+            count=0, array=True),
         DynamicDependencyFormulaField(
-          'c', 'formula',
-          help='Optional wave dependency formula.',
-          count=0, array=True),
+            'c', 'formula',
+            help='Optional wave dependency formula.',
+            count=0, array=True),
         DynamicWaveNoteField(
-          'c', 'note',
-          help='Optional wave note data.', count=0,
-          array=True),
+            'c', 'note',
+            help='Optional wave note data.', count=0,
+            array=True),
         DynamicDataUnitsField(
-          'c', 'data_units',
-          help='Optional extended data units data.',
-          count=0, array=True),
+            'c', 'data_units',
+            help='Optional extended data units data.',
+            count=0, array=True),
         DynamicDimensionUnitsField(
-          'c', 'dimension_units',
-          help='Optional dimension label data',
-          count=0, array=True),
+            'c', 'dimension_units',
+            help='Optional dimension label data',
+            count=0, array=True),
         DynamicLabelsField(
-          'c', 'labels',
-          help="Optional dimension label data",
-          count=0, array=True),
+            'c', 'labels',
+            help="Optional dimension label data",
+            count=0, array=True),
         DynamicStringIndicesDataField(
-          'P', 'sIndices',
-          help='Dynamic string indices for text waves.',
-          count=0, array=True),
-        ])
+            'P', 'sIndices',
+            help='Dynamic string indices for text waves.',
+            count=0, array=True),
+    ])
 
 Wave = _DynamicStructure(
     name='Wave',

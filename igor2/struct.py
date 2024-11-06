@@ -8,7 +8,6 @@ with each field in a hierarchy of Python dictionaries.
 from __future__ import absolute_import
 import io as _io
 import logging
-import pprint as _pprint
 import struct as _struct
 
 import numpy as _numpy
@@ -147,7 +146,7 @@ class Field (object):
         Use this method to recalculate dynamic properities after
         changing the basic properties set during initialization.
         """
-        logger.debug('setup {}'.format(self))
+        logger.debug('setup %s', self)
         self.item_count = _numpy.prod(self.count)  # number of item repeats
         if not self.array and self.item_count != 1:
             raise ValueError(
@@ -244,7 +243,7 @@ class Field (object):
 
     def unpack_data(self, data):
         """Inverse of .pack_data"""
-        logger.debug('unpack {} for {} {}'.format(data, self, self.format))
+        logger.debug('unpack %s for %s %s', data, self, self.format)
         iterator = iter(data)
         try:
             items = [next(iterator) for i in range(self.arg_count)]
@@ -279,8 +278,8 @@ class Field (object):
                 raise NotImplementedError('reshape Structure field')
         else:
             unpacked = _numpy.array(unpacked)
-            logger.debug('reshape {} data from {} to {}'.format(
-                self, unpacked.shape, count))
+            logger.debug('reshape %s data from %s to %s',
+                         self, unpacked.shape, count)
             unpacked = unpacked.reshape(count)
         return unpacked
 
@@ -492,14 +491,14 @@ class Structure (_struct.Struct):
         Use this method to recalculate dynamic properities after
         changing the basic properties set during initialization.
         """
-        logger.debug('setup {!r}'.format(self))
+        logger.debug('setup %r', self)
         self.set_byte_order(self.byte_order)
         self.get_format()
 
     def set_byte_order(self, byte_order):
         """Allow changing the format byte_order on the fly.
         """
-        logger.debug('set byte order for {!r} to {}'.format(self, byte_order))
+        logger.debug('set byte order for %r to %s', self, byte_order)
         self.byte_order = byte_order
         for field in self.fields:
             if isinstance(field.format, Structure):
@@ -517,7 +516,7 @@ class Structure (_struct.Struct):
         return format
 
     def sub_format(self):
-        logger.debug('calculate sub-format for {!r}'.format(self))
+        logger.debug('calculate sub-format for %r', self)
         for field in self.fields:
             if isinstance(field.format, Structure):
                 field_format = list(
@@ -579,8 +578,8 @@ class Structure (_struct.Struct):
 
     def unpack_from(self, buffer, offset=0, *args, **kwargs):
         logger.debug(
-            'unpack {!r} for {!r} ({}, offset={}) with {} ({})'.format(
-                buffer, self, len(buffer), offset, self.format, self.size))
+            'unpack %r for %r (%s, offset=%s) with %s (%s)',
+            buffer, self, len(buffer), offset, self.format, self.size)
         args = super(Structure, self).unpack_from(
             buffer, offset, *args, **kwargs)
         return self._unpack_item(args)
@@ -595,8 +594,8 @@ class DebuggingStream (object):
 
     def read(self, size):
         data = self.stream.read(size)
-        logger.debug('read {} from {}: ({}) {!r}'.format(
-            size, self.stream, len(data), data))
+        logger.debug('read %s from %s: (%s) %r',
+                     size, self.stream, len(data), data)
         return data
 
 
@@ -698,10 +697,10 @@ class DynamicStructure (Structure):
             parents = parents + [self]
         for f in self.fields:
             if hasattr(f, 'pre_pack'):
-                logger.debug('pre-pack {}'.format(f))
+                logger.debug('pre-pack %s', f)
                 f.pre_pack(parents=parents, data=data)
             if isinstance(f.format, DynamicStructure):
-                logger.debug('pre-pack {!r}'.format(f.format))
+                logger.debug('pre-pack %r', f.format)
                 f._pre_pack(parents=parents, data=data)
 
     def pack(self, data):
@@ -720,22 +719,23 @@ class DynamicStructure (Structure):
         if data is None:
             parents = [self]
             data = d = {}
-            if logger.level <= logging.DEBUG:
+            if logger.isEnabledFor(logging.DEBUG):
                 stream = DebuggingStream(stream)
         else:
             parents = parents + [self]
 
         for f in self.fields:
-            logger.debug('parsing {!r}.{} (count={}, item_count={})'.format(
-                self, f, f.count, f.item_count))
-            if logger.level <= logging.DEBUG:
-                logger.debug('data:\n{}'.format(_pprint.pformat(data)))
+            logger.debug('parsing %r.%s (count=%s, item_count=%s)',
+                         self, f, f.count, f.item_count)
+            if logger.isEnabledFor(logging.DEBUG):
+                import pprint as _pprint
+                logger.debug('data:\n%s', _pprint.pformat(data))
             if hasattr(f, 'pre_unpack'):
-                logger.debug('pre-unpack {}'.format(f))
+                logger.debug('pre-unpack %s', f)
                 f.pre_unpack(parents=parents, data=data)
 
             if hasattr(f, 'unpack'):  # override default unpacking
-                logger.debug('override unpack for {}'.format(f))
+                logger.debug('override unpack for %s', f)
                 d[f.name] = f.unpack(stream)
                 continue
 
@@ -758,15 +758,15 @@ class DynamicStructure (Structure):
                         f.format.unpack_stream(
                             stream, parents=parents, data=data, d=d[f.name])
                     if hasattr(f, 'post_unpack'):
-                        logger.debug('post-unpack {}'.format(f))
+                        logger.debug('post-unpack %s', f)
                         repeat = f.post_unpack(parents=parents, data=data)
                         if repeat:
                             raise NotImplementedError(
                                 'cannot repeat unpack for dynamic structures')
                     continue
             if isinstance(f.format, Structure):
-                logger.debug('parsing {} bytes for {}'.format(
-                    f.format.size, f.format.format))
+                logger.debug('parsing %s bytes for %s',
+                             f.format.size, f.format.format)
                 bs = [stream.read(f.format.size) for i in range(f.item_count)]
 
                 def unpack():
@@ -785,10 +785,10 @@ class DynamicStructure (Structure):
                     size = _struct.calcsize(field_format)
                 except _struct.error as e:
                     logger.error(e)
-                    logger.error('{}.{}: {}'.format(self, f, field_format))
+                    logger.error('%s.%s: %s', self, f, field_format)
                     raise
-                logger.debug('parsing {} bytes for preliminary {}'.format(
-                    size, field_format))
+                logger.debug('parsing %s bytes for preliminary %s',
+                             size, field_format)
                 raw = stream.read(size)
                 if len(raw) < size:
                     raise ValueError(
@@ -798,8 +798,8 @@ class DynamicStructure (Structure):
                 def unpack():
                     field_format = self.byte_order + f.format * f.item_count
                     field_format = field_format.replace('P', 'I')
-                    logger.debug('parse previous bytes using {}'.format(
-                        field_format))
+                    logger.debug('parse previous bytes using %s',
+                                 field_format)
                     struct = _struct.Struct(field_format)
                     items = struct.unpack(raw)
                     return f.unpack_data(items)
@@ -809,12 +809,12 @@ class DynamicStructure (Structure):
             while repeat:
                 d[f.name] = unpack()
                 if hasattr(f, 'post_unpack'):
-                    logger.debug('post-unpack {}'.format(f))
+                    logger.debug('post-unpack %s', f)
                     repeat = f.post_unpack(parents=parents, data=data)
                 else:
                     repeat = False
                 if repeat:
-                    logger.debug('repeat unpack for {}'.format(f))
+                    logger.debug('repeat unpack for %s', f)
 
         return data
 

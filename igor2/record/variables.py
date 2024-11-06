@@ -292,8 +292,8 @@ class DynamicVersionField (_DynamicField):
             need_to_reorder_bytes = _need_to_reorder_bytes(version)
             variables_structure.byte_order = _byte_order(need_to_reorder_bytes)
             logger.debug(
-                'get byte order from version: {} (reorder? {})'.format(
-                    variables_structure.byte_order, need_to_reorder_bytes))
+                'get byte order from version: %s (reorder? %s)',
+                variables_structure.byte_order, need_to_reorder_bytes)
         else:
             need_to_reorder_bytes = False
 
@@ -307,8 +307,9 @@ class DynamicVersionField (_DynamicField):
                 'invalid variables record version: {}'.format(version))
 
         if variables_structure.fields[-1].format != old_format:
-            logger.debug('change variables record from {} to {}'.format(
-                old_format, variables_structure.fields[-1].format))
+            logger.debug('change variables record from %s to %s',
+                         old_format, variables_structure.fields[-1].format)
+
             variables_structure.setup()
         elif need_to_reorder_bytes:
             variables_structure.setup()
@@ -340,6 +341,6 @@ class VariablesRecord (Record):
         self.namespace = {}
         for key, value in self.variables['variables'].items():
             if key not in ['var_header']:
-                logger.debug('update namespace {} with {} for {}'.format(
-                    self.namespace, value, key))
+                logger.debug('update namespace %s with %s for %s',
+                             self.namespace, value, key)
                 self.namespace.update(value)

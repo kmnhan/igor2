@@ -66,7 +66,7 @@ def load(filename, strict=True, ignore_unknown=True, initial_byte_order=None):
     filesystem : dict
         The filesystem structure of the packed experiment file.
     """
-    logger.debug('loading a packed experiment file from {}'.format(filename))
+    logger.debug('loading a packed experiment file from %s', filename)
     records = []
     if hasattr(filename, 'read'):
         f = filename  # filename is actually a stream object
@@ -92,14 +92,14 @@ def load(filename, strict=True, ignore_unknown=True, initial_byte_order=None):
                 need_to_reorder = _need_to_reorder_bytes(header['version'])
                 byte_order = initial_byte_order = _byte_order(need_to_reorder)
                 logger.debug(
-                    'get byte order from version: {} (reorder? {})'.format(
-                        byte_order, need_to_reorder))
+                    'get byte order from version: %s (reorder? %s)',
+                    byte_order, need_to_reorder)
                 if need_to_reorder:
                     PackedFileRecordHeader.byte_order = byte_order
                     PackedFileRecordHeader.setup()
                     header = PackedFileRecordHeader.unpack_from(b)
                     logger.debug(
-                        'reordered version: {}'.format(header['version']))
+                        'reordered version: %s', header['version'])
             data = bytes(f.read(header['numDataBytes']))
             if len(data) < header['numDataBytes']:
                 raise ValueError(
@@ -108,16 +108,16 @@ def load(filename, strict=True, ignore_unknown=True, initial_byte_order=None):
                      ).format(len(b), header['numDataBytes']))
             record_type = _RECORD_TYPE.get(
                 header['recordType'] & PACKEDRECTYPE_MASK, _UnknownRecord)
-            logger.debug('the new record has type {} ({}).'.format(
-                record_type, header['recordType']))
+            logger.debug('the new record has type %s (%s).',
+                         record_type, header['recordType'])
             if record_type in [_UnknownRecord, _UnusedRecord
                                ] and not ignore_unknown:
                 raise KeyError('unkown record type {}'.format(
                     header['recordType']))
             records.append(record_type(header, data, byte_order=byte_order))
     finally:
-        logger.debug('finished loading {} records from {}'.format(
-            len(records), filename))
+        logger.debug('finished loading %s records from %s',
+                     len(records), filename)
         if not hasattr(filename, 'read'):
             f.close()
 
