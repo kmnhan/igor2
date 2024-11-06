@@ -1,3 +1,5 @@
+0.5.9
+ - fix: performance overhead due to logging (#20)
 0.5.8
  - fix: support NumPy 2.0 (#18 #17)
 0.5.7
