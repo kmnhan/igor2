@@ -114,7 +114,14 @@ def load(filename, strict=True, ignore_unknown=True, initial_byte_order=None):
                                ] and not ignore_unknown:
                 raise KeyError('unkown record type {}'.format(
                     header['recordType']))
-            records.append(record_type(header, data, byte_order=byte_order))
+            try:
+                records.append(
+                    record_type(header, data, byte_order=byte_order)
+                )
+            except TypeError:
+                logger.exception(
+                    'failed to create a record of type %s', record_type
+                )
     finally:
         logger.debug('finished loading %s records from %s',
                      len(records), filename)
